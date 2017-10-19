@@ -2,6 +2,7 @@ import path from 'path'
 import webpack from 'webpack'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
 import postcssAutoprefixer from 'autoprefixer'
 import postcssAtImport from 'postcss-import'
 
@@ -22,11 +23,19 @@ const extractCSSPlugin = new ExtractTextPlugin({
 })
 const copyWebpackPlugin = new CopyWebpackPlugin([
     {
-        from: `${SOURCE_DIRECTORY}/components/common/favicon/**/*`,
+        from: `${SOURCE_DIRECTORY}/components/favicon/**/*`,
         to: BUILD_DIRECTORY,
         flatten: true,
     },
 ])
+const htmlWebpackPlugin = new HtmlWebpackPlugin({
+    title: 'Geo GitHub',
+    filename: 'index.html',
+    template: `${SOURCE_DIRECTORY}/components/html/html.ejs`
+})
+// LoaderOptionsPlugin is user to allow webpack v1 plugins
+// to work in webpack 2 environment.
+const loaderOptionsPlugin = new webpack.LoaderOptionsPlugin()
 const RULES = {
     js: {
         test: /\.js$/,
@@ -90,13 +99,6 @@ const RULES = {
         })
     },
 }
-const PLUGINS = {
-    envPlugin,
-    noEmitOnErrorsPlugin,
-    extractCSSPlugin,
-    copyWebpackPlugin,
-    loaderOptionsPlugin: new webpack.LoaderOptionsPlugin(),
-}
 
 export default {
     context: SOURCE_DIRECTORY,
@@ -117,11 +119,12 @@ export default {
         ]
     },
     plugins: [
-        PLUGINS.envPlugin,
-        PLUGINS.noEmitOnErrorsPlugin,
-        PLUGINS.extractCSSPlugin,
-        PLUGINS.copyWebpackPlugin,
-        PLUGINS.loaderOptionsPlugin,
+        envPlugin,
+        noEmitOnErrorsPlugin,
+        extractCSSPlugin,
+        copyWebpackPlugin,
+        htmlWebpackPlugin,
+        loaderOptionsPlugin,
     ],
     stats: {
         assets: false,
