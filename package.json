@@ -1,0 +1,19 @@
+{
+  "name": "geogithub",
+  "version": "0.0.1",
+  "description": "Shows that this world is global",
+  "main": "dist/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antipin/geogithub.git"
+  },
+  "author": "Alexander I. Antipin <alex@antipin.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/antipin/geogithub/issues"
+  },
+  "homepage": "https://github.com/antipin/geogithub#readme"
+}
