@@ -1,0 +1,5 @@
+{
+    "ignore": "**/node_modules/**/*.js",
+    "sourceMaps": "inline",
+    "presets": [ "es2015", "react", "labs42" ]
+}
