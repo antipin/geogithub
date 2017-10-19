@@ -1,0 +1,15 @@
+{
+  "name": "geogithub_playground",
+  "version": "0.0.1",
+  "main": "fetch.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alexander I. Antipin <alex@antipin.com>",
+  "license": "MIT",
+  "dependencies": {
+    "async": "2.5.0",
+    "parse-link-header": "1.0.1",
+    "request": "2.83.0"
+  }
+}
