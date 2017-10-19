@@ -7,7 +7,7 @@ import postcssAtImport from 'postcss-import'
 
 const ROOT_DIRECTORY = path.resolve(__dirname, '../../')
 const SOURCE_DIRECTORY = path.resolve(ROOT_DIRECTORY, 'src')
-const BUILD_DIRECTORY = path.resolve(ROOT_DIRECTORY, 'dist')
+export const BUILD_DIRECTORY = path.resolve(ROOT_DIRECTORY, 'dist')
 const noEmitOnErrorsPlugin = new webpack.NoEmitOnErrorsPlugin()
 const { NODE_ENV } = process.env
 const envPlugin = new webpack.DefinePlugin({
