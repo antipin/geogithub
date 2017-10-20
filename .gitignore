@@ -1,6 +1,7 @@
 ### Project
 /dist
 /tmp
+.env
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Windows template

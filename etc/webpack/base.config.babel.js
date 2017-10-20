@@ -10,10 +10,12 @@ const ROOT_DIRECTORY = path.resolve(__dirname, '../../')
 const SOURCE_DIRECTORY = path.resolve(ROOT_DIRECTORY, 'src')
 export const BUILD_DIRECTORY = path.resolve(ROOT_DIRECTORY, 'dist')
 const noEmitOnErrorsPlugin = new webpack.NoEmitOnErrorsPlugin()
-const { NODE_ENV } = process.env
+const { NODE_ENV, GITHUB_TOKEN, MAPBOX_TOKEN } = process.env
 const envPlugin = new webpack.DefinePlugin({
     'process.env': {
         NODE_ENV: JSON.stringify(NODE_ENV),
+        GITHUB_TOKEN: JSON.stringify(GITHUB_TOKEN),
+        MAPBOX_TOKEN: JSON.stringify(MAPBOX_TOKEN),
     }
 })
 const extractCSSPlugin = new ExtractTextPlugin({
@@ -103,7 +105,7 @@ const RULES = {
 export default {
     context: SOURCE_DIRECTORY,
     entry: {
-        main: [ './geogithub.js' ],
+        main: [ 'babel-polyfill', './geogithub.js' ],
     },
     output: {
         publicPath: '/',

@@ -7,6 +7,7 @@ export default Object.assign({}, base, {
         aggregateTimeout: 100
     },
     devServer: {
+        lazy: true,
         contentBase: BUILD_DIRECTORY,
         compress: true,
         port: 8000
