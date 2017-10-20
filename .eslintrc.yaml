@@ -1,1 +1,4 @@
 extends: labs42
+
+rules:
+  valid-jsdoc: 0
