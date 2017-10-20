@@ -19,6 +19,8 @@ See **How to get access tokens** section below.
 GITHUB_TOKEN=<github_access_token> MAPBOX_TOKEN=<mapbox_access_token> npm run start:dev
 ```
 
+Now you cat open application on [localhost:8000](http://localhost:8000)
+
 If you want just build project, run
 ```
 GITHUB_TOKEN=<github_access_token> MAPBOX_TOKEN=<mapbox_access_token> npm run build:dev
@@ -40,5 +42,3 @@ As far as this application talks with github and mapbox APIs, first you need to 
 To generate *github* access token make sure you signed into github account and go to [/settings/tokens](https://github.com/settings/tokens)
 
 To get *mapbox* access token, [sign up](https://www.mapbox.com/signup/) for this service and create net token here: [/studio/account/tokens/](https://www.mapbox.com/studio/account/tokens/)
-
-Having this two tokens now you can run development server and access application by visiting [localhost:8000](http://localhost:8000)
