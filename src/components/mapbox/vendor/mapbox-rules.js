@@ -171,6 +171,7 @@ export default `
         padding: 0 5px;
         background-color: rgba(255, 255, 255, .5);
         margin: 0;
+        display: none;
     }
     .mapboxgl-ctrl-attrib.mapboxgl-compact {
         padding-top: 2px;

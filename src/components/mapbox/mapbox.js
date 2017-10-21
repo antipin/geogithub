@@ -1,12 +1,17 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import mapboxGL from 'mapbox-gl'
 import eachLimit from 'async/eachLimit'
+import { actions } from '../../modules'
 import mapboxStyle from './vendor/mapbox-rules'
 import style from './mapbox.css'
 
 const MAPBOX_STYLE = 'mapbox://styles/mapbox/dark-v9'
-
-export default class Mapbox extends Component {
+const ACTIVE_MODES = [ 
+    'fetching_repo_dataset_succeded',
+    'visualising_repo_dataset',
+]
+class Mapbox extends Component {
 
     constructor() {
         
@@ -26,7 +31,7 @@ export default class Mapbox extends Component {
 
         Mapbox.injectCSS(mapboxStyle)
 
-        const map = new mapboxGL.Map({
+        this.map = new mapboxGL.Map({
             container: this.container,
             style: MAPBOX_STYLE,
             minZoom: 1,
@@ -36,8 +41,7 @@ export default class Mapbox extends Component {
             interactive: false,
         })
 
-        // map.on('load', () => Mapbox.plotMarkers(map).then(() => console.log('PLOTTER COMPLETED ITS JOB')))
-        map.on('load', () => {
+        this.map.on('load', () => {
 
             this.setState({
                 ...this.state,
@@ -48,23 +52,57 @@ export default class Mapbox extends Component {
         
     }
 
-    shouldComponentUpdate() {
-        
-        return (this.state.isMapLoaded === false)
-        
-    }
-
     render() {
 
+        const { mode } = this.props
         const { isMapLoaded } = this.state
-        const containerClassName = isMapLoaded ? 
-            [ style.root, style.rootWithMap ].join(' ') :
-            style.root
-        
+        const containerClassNames = [ style.root ]
+
+        if (isMapLoaded) {
+            
+            containerClassNames.push(style.rootWithMap)
+
+        }
+
+        if (ACTIVE_MODES.includes(mode) === false) {
+
+            containerClassNames.push(style.rootInactive)
+
+        }
+
         return (
-            <div className={containerClassName} ref={ elem => (this.container = elem) } />
+            <div
+                className={containerClassNames.join(' ')} 
+                ref={ elem => (this.container = elem) } />
         )
     
+    }
+
+    componentDidUpdate() {
+
+        const { dispatch, mode, dataset } = this.props
+        const { startVisualisation, completeVisualisation } = actions
+
+        switch (mode) {
+
+            case 'fetching_repo_dataset_succeded':
+                
+                // Waiting for animations to complete
+                setTimeout(
+                    () => dispatch(startVisualisation()),
+                    1000
+                )
+                break
+
+            case 'visualising_repo_dataset':
+                Mapbox.plotMarkers(this.map, dataset).then(() => dispatch(completeVisualisation()))
+                break
+
+            default:
+                // do-nothing
+
+        }
+
     }
 
     static createMarkerElem() {
@@ -80,11 +118,11 @@ export default class Mapbox extends Component {
 
     }
     
-    static plotMarkers(map) {
+    static plotMarkers(map, dataset) {
 
         return new Promise((resolve, reject) => {
 
-            const { commits, contributors, locations } = window.dataset
+            const { commits, contributors, locations } = dataset
     
             eachLimit(
                 commits,
@@ -152,3 +190,9 @@ export default class Mapbox extends Component {
 
 }
 
+const mapStateToProps = (state) => ({
+    mode: state.mode,
+    dataset: state.dataset,
+})
+
+export default connect(mapStateToProps)(Mapbox)
