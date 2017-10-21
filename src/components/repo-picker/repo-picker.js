@@ -13,7 +13,7 @@ class RepoPicker extends Component {
         super(props)
 
         this.state = {
-            repoName: '',
+            repoPath: 'ReactTraining/history',
         }
 
         this.handleSearchChange = this.handleSearchChange.bind(this)
@@ -29,6 +29,8 @@ class RepoPicker extends Component {
     }
 
     render() {
+
+        const { repoPath } = this.state
         
         return (
             <div className={style.root}>
@@ -44,6 +46,7 @@ class RepoPicker extends Component {
                                 onChange={this.handleSearchChange}
                                 onKeyDown={this.handleSearchKeyDown}
                                 ref={(elem) => (this.input = elem)}
+                                value={repoPath}
                                 placeholder="facebook/react"
                             />
                         </div>
@@ -63,7 +66,7 @@ class RepoPicker extends Component {
         
         this.setState({
             ...this.state,
-            repoName: event.target.value,
+            repoPath: event.target.value,
         })
 
     }
@@ -84,7 +87,7 @@ class RepoPicker extends Component {
 
             this.setState({
                 ...state,
-                repoName: '',
+                repoPath: '',
             })
 
         }
@@ -106,10 +109,10 @@ class RepoPicker extends Component {
     doSelectRepo() {
         
         const { dispatch } = this.props
-        const { repoName } = this.state
+        const { repoPath } = this.state
         const { selectRepo } = actions
         
-        dispatch(selectRepo(repoName))
+        dispatch(selectRepo(repoPath))
         
     }
 
