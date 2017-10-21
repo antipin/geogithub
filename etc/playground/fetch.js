@@ -3,7 +3,7 @@ import request from 'request'
 import parsePaginationLinks from 'parse-link-header'
 
 const TOKEN = '' // Insert token here
-const REPO_NAME = 'facebook/react'
+const REPO_PATH = 'facebook/react'
 const headers = {
     'authorization': `token ${TOKEN}`,
     'user-agent': 'geogithub 0.0.1',
@@ -37,7 +37,6 @@ function fetchContributors(url, accum, callback) {
 
             if (pagination.next.page <= 3) {
 
-                console.log(`Fetching contributors page ${pagination.next.page}`)
                 return fetchContributors(pagination.next.url, accum, callback)
 
             }
@@ -54,11 +53,9 @@ function fetchContributors(url, accum, callback) {
 
 }
 
-request.get({ url: `https://api.github.com/repos/${REPO_NAME}`, json: true, headers }, (error, response, body) => {
+request.get({ url: `https://api.github.com/repos/${REPO_PATH}`, json: true, headers }, (error, response, body) => {
 
     if (error) return console.error(error)
-
-    return console.log(response.headers)
 
     dataset.repo = body
 
@@ -109,9 +106,6 @@ request.get({ url: `https://api.github.com/repos/${REPO_NAME}`, json: true, head
                     },
                     {}
                 )
-
-                console.log('\nLocations')
-                console.log(locations)
 
             }
 
