@@ -242,10 +242,6 @@ export default class GeoGithubDataprovider {
             'id',
             'name',
             'full_name',
-            'language',
-            'languages_url',
-            'created_at',
-            'updated_at',
             'contributors_url'
         ])
 
@@ -259,7 +255,6 @@ export default class GeoGithubDataprovider {
             'location',
             'login',
             'name',
-            'type',
         ])
 
     }
@@ -271,10 +266,25 @@ export default class GeoGithubDataprovider {
         if (features.length === 0) return null
 
         const [ location ] = features
+        const { context } = location
+        let country = null
+
+        if (Array.isArray(context) && context.length > 0) {
+
+            const countryObj = context[context.length - 1]
+            
+            country = countryObj.text || ''
+
+        } else {
+
+            country = location.text // Assume that if location.context is empty, name is a country name
+
+        }
 
         return {
             name: location.text,
             coords: location.center,
+            country,
         }
 
     }
@@ -290,10 +300,8 @@ export default class GeoGithubDataprovider {
         }
 
         return {
-            id: sha,
-            message: commit.message,
+            user_id: author.id,
             date: commit.author.date,
-            author: pick(author, 'id', 'login')
         }
 
     }
