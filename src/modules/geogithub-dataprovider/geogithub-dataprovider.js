@@ -19,11 +19,17 @@ export default class GeoGithubDataprovider {
 
     fetch() {
         
-        return this.fetchRepo()
-            .then(this.fetchContributors.bind(this))
-            .then(this.fetchContributorLocations.bind(this))
-            .then(this.fetchGeo.bind(this))
-            .then(this.fetchCommits.bind(this))
+        // todo: remove this code, its for debug only
+        return Promise
+            .resolve(require('./dataset.json')) // eslint-disable-line
+
+        // console.timeEnd('fetching')
+        // return this.fetchRepo()
+        //     .then(this.fetchContributors.bind(this))
+        //     .then(this.fetchContributorLocations.bind(this))
+        //     .then(this.fetchGeo.bind(this))
+        //     .then(this.fetchCommits.bind(this))
+        //     .then(console.timeEnd('fetching'))
             
     }
         
