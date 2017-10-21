@@ -1,5 +1,5 @@
 import { createAction } from 'redux-actions'
-import { GeoGithubDataprovider } from '../'
+import { GeoGithubDataprovider, GeoEventsTimeline } from '../'
 
 const sigmoidFunc = (x) => 1 / (1 + Math.pow(Math.E, -(x - 4)))
 
@@ -36,10 +36,22 @@ const fetchRepoDataset = createAction('FETCH_REPO_DATASET', ({ repoPath, githubT
                 return Promise.resolve(dataset)
 
             })
-            .then(dataset => dispatch(fetchRepoDatasetSucceeded(dataset)))
+            // Convert raw dataset into
+            .then(dataset => Promise.resolve({ 
+                commitsTimeline: new GeoEventsTimeline({
+                    events: dataset.commits,
+                    users: dataset.contributors,
+                    locations: dataset.locations,
+                }),
+                dataset,
+            }))
+            .then(({ commitsTimeline, dataset }) => dispatch(
+                fetchRepoDatasetSucceeded({ commitsTimeline, dataset })
+            ))
             .catch(error => {
                 
                 clearInterval(progressTimer)
+                console.error(error)
                 dispatch(fetchRepoDatasetFailed(error))
 
             })

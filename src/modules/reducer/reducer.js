@@ -24,7 +24,8 @@ function makeReducer({ initialState, modes }) {
         FETCH_REPO_DATASET_SUCCEEDED: (state, action) => ({
             ...state,
             mode: modes.fetching_repo_dataset_succeded,
-            dataset: action.payload,
+            dataset: action.payload.dataset,
+            commitsTimeline: action.payload.commitsTimeline
         }),
         START_VISUALISATION: (state) => ({
             ...state,
