@@ -13,7 +13,7 @@ class RepoPicker extends Component {
         super(props)
 
         this.state = {
-            repoPath: 'ReactTraining/history',
+            repoPath: 'facebook/react',
         }
 
         this.handleSearchChange = this.handleSearchChange.bind(this)
