@@ -46,8 +46,8 @@ const fetchRepoDataset = createAction('FETCH_REPO_DATASET', ({ repoPath, githubT
     
     })
 
-const startVisualisation = createAction('VISUALISATION_STARTED')
-const completeVisualisation = createAction('VISUALISATION_COMPLETED')
+const startVisualisation = createAction('START_VISUALISATION')
+const completeVisualisation = createAction('COMPLETE_VISUALISATION')
 const tryAgain = createAction('TRY_AGAIN')
 
 export default {

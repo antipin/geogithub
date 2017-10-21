@@ -26,11 +26,11 @@ function makeReducer({ initialState, modes }) {
             mode: modes.fetching_repo_dataset_succeded,
             dataset: action.payload,
         }),
-        VISUALISATION_STARTED: (state) => ({
+        START_VISUALISATION: (state) => ({
             ...state,
             mode: modes.visualising_repo_dataset,
         }),
-        VISUALISATION_COMPLETED: (state) => ({
+        COMPLETE_VISUALISATION: (state) => ({
             ...state,
             mode: modes.visualisation_completed,
         }),
