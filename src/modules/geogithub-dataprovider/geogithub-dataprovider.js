@@ -1,6 +1,8 @@
 import eachLimit from 'async/eachLimit'
 import pick from 'lodash/pick'
 import Fetch from '../fetch'
+import datasetHistory from './dataset-history.json'
+import datasetReat from './dataset-react.json'
 
 const PARALLEL_REQUESTS_LIMIT = 25
 const MAPBOX_BASE_URL = 'https://api.mapbox.com'
@@ -19,21 +21,30 @@ export default class GeoGithubDataprovider {
 
     fetch() {
         
-        return new Promise(resolve => {
+        const mapRepoPathToDataset = {
+            'ReactTraining/history': datasetHistory,
+            'facebook/react': datasetReat,
+        }
+        const preloadedDataset = mapRepoPathToDataset[this.repoPath]
 
-            const dataset = require('./dataset.json') // eslint-disable-line
+        if (preloadedDataset) {
 
-            setTimeout(() => resolve(dataset), 3000)
+            return new Promise(resolve => {
+    
+                setTimeout(() => resolve(preloadedDataset), 3000)
+    
+            })
 
-        })
+        }
 
-        // console.timeEnd('fetching')
-        // return this.fetchRepo()
-        //     .then(this.fetchContributors.bind(this))
-        //     .then(this.fetchContributorLocations.bind(this))
-        //     .then(this.fetchGeo.bind(this))
-        //     .then(this.fetchCommits.bind(this))
-        //     .then(console.timeEnd('fetching'))
+        console.timeEnd('fetching')
+        
+        return this.fetchRepo()
+            .then(this.fetchContributors.bind(this))
+            .then(this.fetchContributorLocations.bind(this))
+            .then(this.fetchGeo.bind(this))
+            .then(this.fetchCommits.bind(this))
+            .then(console.timeEnd('fetching'))
             
     }
         
