@@ -6,7 +6,7 @@
   "scripts": {
     "build:dev": "NODE_ENV=development webpack --progress --config ./etc/webpack/dev.config.babel.js",
     "build": "NODE_ENV=production webpack --progress --config ./etc/webpack/prod.config.babel.js",
-    "start:dev": "webpack-dev-server --config ./etc/webpack/dev.config.babel.js",
+    "start:dev": "NODE_ENV=development webpack-dev-server --config ./etc/webpack/dev.config.babel.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "prelint"
   },
