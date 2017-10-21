@@ -31,7 +31,7 @@ export default class GeoGithubDataprovider {
 
             return new Promise(resolve => {
     
-                setTimeout(() => resolve(preloadedDataset), 3000)
+                setTimeout(() => resolve(preloadedDataset), 100)
     
             })
 
@@ -189,8 +189,14 @@ export default class GeoGithubDataprovider {
                     this.mapbox.get(geocodeUrl, { limit: 1 })
                         .then(geocodeData => {
 
-                            dataset.locations[cotributorLocation] = GeoGithubDataprovider.formatGeo(geocodeData)
-                            
+                            const location = GeoGithubDataprovider.formatGeo(geocodeData)
+
+                            if (location !== null) {
+                                
+                                dataset.locations[cotributorLocation] = location
+
+                            }
+
                             return next()
 
                         })
@@ -230,7 +236,9 @@ export default class GeoGithubDataprovider {
         })
 
         // Enrich dataset with commits
-        dataset.commits = commitsData.map(commitData => GeoGithubDataprovider.formatCommit(commitData))
+        dataset.commits = commitsData
+            .map(commitData => GeoGithubDataprovider.formatCommit(commitData))
+            .filter(commitData => commitData !== null)
 
         return Promise.resolve(dataset)
 
@@ -291,7 +299,7 @@ export default class GeoGithubDataprovider {
 
     static formatCommit(data) {
     
-        const { sha, author, commit } = data
+        const { author, commit } = data
 
         if (author == null) {
 
