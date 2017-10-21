@@ -114,6 +114,9 @@ class Mapbox extends Component {
         markerInner.className = style.markerInner
         marker.appendChild(markerInner)
 
+        // Autoremove after animation completed
+        marker.addEventListener('animationend', () => (marker.remove()))
+
         return marker
 
     }
