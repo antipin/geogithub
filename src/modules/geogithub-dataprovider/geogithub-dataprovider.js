@@ -19,9 +19,13 @@ export default class GeoGithubDataprovider {
 
     fetch() {
         
-        // todo: remove this code, its for debug only
-        return Promise
-            .resolve(require('./dataset.json')) // eslint-disable-line
+        return new Promise(resolve => {
+
+            const dataset = require('./dataset.json') // eslint-disable-line
+
+            setTimeout(() => resolve(dataset), 3000)
+
+        })
 
         // console.timeEnd('fetching')
         // return this.fetchRepo()
