@@ -1,2 +1,6 @@
 export { default as Fetch } from './fetch'
 export { default as GeoGithubDataprovider } from './geogithub-dataprovider'
+export { default as makeReducer } from './reducer'
+export { default as makeStore } from './store'
+export { default as makeRenderer } from './renderer'
+export { default as actions } from './actions'
