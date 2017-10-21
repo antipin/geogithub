@@ -30,43 +30,14 @@
     text-align: center;
 }
 
-.dialog-footer {
-    padding-top: 50px;
-    text-align: center;
+.progress-bar {
+    border: 1px solid rgba(255,255,255,0.5);
+    padding: 1px;
 }
 
-.field-input {
-    display: block;
-    text-align: center
-}
-
-.input {
-    display: inline-block;
-    border: 1px solid #FFF;
-    background-color: transparent;
-    font-size: 16px;
-    padding: 10px;
-    color: inherit;
-    width: 50%;
-}
-
-.input:focus {
-    outline: 7px solid rgba(255,255,255,0.1);
-}
-
-.button {
-    display: inline-block;
-    border: 1px solid #FFF;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    line-height: 56px;
-    font-size: 16px;
-    color: inherit;
-    cursor: pointer;
-    transition: transform 0.5s;
-}
-
-.button:hover { 
-    transform: scale(1.1);
+.progress {
+    height: 5px;
+    background-color: #FFF;
+    width: 0;
+    transition: width 0.5s;    
 }

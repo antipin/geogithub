@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { actions } from '../../modules'
 import style from './repo-fetcher.css'
 
 class RepoFetcher extends Component {
@@ -15,14 +16,18 @@ class RepoFetcher extends Component {
     }
     
     componentDidMount() {
+        
+        const { dispatch, repoPath, githubToken, mapboxToken } = this.props
+        const { fetchRepoDataset } = actions
 
-        // const { dispatch } = this.props
-
-        // dispatch('START FETCH!')
+        dispatch(fetchRepoDataset({ repoPath, githubToken, mapboxToken }))
 
     }
 
     render() {
+
+        const { progress } = this.props
+        const width = `${Math.round(progress * 100)}%`
         
         return (
             <div className={style.root}>
@@ -31,7 +36,9 @@ class RepoFetcher extends Component {
                         Fetching dataset
                     </h2>
                     <div className={style.dialogBody}>
-                        Loading...
+                        <div className={style.progressBar}>
+                            <div className={style.progress} style={{ width }}/>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -41,6 +48,11 @@ class RepoFetcher extends Component {
 
 }
 
-const mapStateToProps = (state) => (state)
+const mapStateToProps = (state) => ({
+    repoPath: state.repo_path,
+    githubToken: state.env.GITHUB_TOKEN,
+    mapboxToken: state.env.MAPBOX_TOKEN,
+    progress: state.progress,
+})
 
 export default connect(mapStateToProps)(RepoFetcher)
