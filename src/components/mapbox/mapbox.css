@@ -19,27 +19,25 @@
 }
 
 .marker-inner {
-    background-image: radial-gradient(white 0%, white 10%, transparent 50%);
     border-radius: 50%;
-    transform: scale(3);
+    border: 1px solid #FFF;
     animation: scale-and-dissolve 0.5s linear forwards;
 }
 
 @keyframes scale-and-dissolve {
     0% {
-        opacity: 0;
+        opacity: 0.1;
     }
     25% {
-        opacity: 1;
+        opacity: 0.5;
         transform: scale(1.5);
     }
     75% {
         opacity: 1;
-        transform: scale(3);
     }
     100% {
         opacity: 0;
-        transform: scale(0.5);
+        transform: scale(3);
     }
 }
 

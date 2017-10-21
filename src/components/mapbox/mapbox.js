@@ -153,7 +153,7 @@ class Mapbox extends Component {
                         }
             
                         const marker = new mapboxGL.Marker(Mapbox.createMarkerElem())
-                        marker.setLngLat(location.coords)
+                        marker.setLngLat(Mapbox.addNoizeToCoords(location.coords))
                         marker.addTo(map)
                         
                         return next()
@@ -186,6 +186,19 @@ class Mapbox extends Component {
 
         }
         
+    }
+
+    static addNoizeToCoords(coords) {
+
+        const [ lng, lat ] = coords
+        const sign = Math.random() > 0.5 ? 1 : -1
+        const mistake = sign * (Math.random())
+
+        return [
+            lng + mistake,
+            lat + mistake,
+        ]
+
     }
 
 }
