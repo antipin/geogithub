@@ -23,7 +23,6 @@ class Root extends Component {
         
         switch (mode) {
     
-            default:
             case 'waiting_for_repo_selection':
                 return <RepoPicker/>
     
@@ -44,6 +43,9 @@ class Root extends Component {
     
             case 'visualisation_completed':
                 return <TryAgain/> // Final screen
+
+            default:
+                return null
     
         }
     
