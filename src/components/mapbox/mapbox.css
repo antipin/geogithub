@@ -1,0 +1,49 @@
+.root {
+    height: 100vh;
+    width: 100vw;
+    opacity: 0;
+    filter: blur(10px);
+}
+
+.root-with-map {
+    animation: fade-in 2s linear forwards;
+}
+
+.marker, .marker-inner {
+    height: 15px;
+    width: 15px;
+}
+
+.marker-inner {
+    background-image: radial-gradient(white 0%, white 10%, transparent 50%);
+    border-radius: 50%;
+    transform: scale(3);
+    animation: scale-and-dissolve 0.5s linear forwards;
+}
+
+@keyframes scale-and-dissolve {
+    0% {
+        opacity: 0;
+    }
+    25% {
+        opacity: 1;
+        transform: scale(1.5);
+    }
+    75% {
+        opacity: 1;
+        transform: scale(5);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
