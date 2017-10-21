@@ -2,23 +2,23 @@ import { applyMiddleware, createStore } from 'redux'
 import { createLogger } from 'redux-logger'
 import thunkFsaMiddleware from 'redux-thunk-fsa'
 
-function makeStore({ reducer, env }) {
+function makeStore({ reducer, initialState, isDevelopment }) {
     
-    const { NODE_ENV } = env
-    const loggerMiddleware = createLogger({
-        predicate: () => true,
-        stateTransformer: (state) => state,
-        collapsed: true,
-    })
     const middlewares = [ thunkFsaMiddleware ]
 
-    if (NODE_ENV === 'development') {
+    if (isDevelopment) {
 
+        const loggerMiddleware = createLogger({
+            predicate: () => true,
+            stateTransformer: (state) => state,
+            collapsed: true,
+        })
+    
         middlewares.push(loggerMiddleware)
 
     }
 
-    return createStore(reducer, {}, applyMiddleware(...middlewares))
+    return createStore(reducer, initialState, applyMiddleware(...middlewares))
 
 }
 
