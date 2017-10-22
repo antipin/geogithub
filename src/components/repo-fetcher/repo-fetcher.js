@@ -31,7 +31,7 @@ class RepoFetcher extends Component {
     render() {
         
         const { 
-            progress, progressTask,
+            progress, progressTask, repoPath,
             rateLimitsProgress, rateLimitsRemaining, rateLimitsLimit 
         } = this.props
         const width = `${Math.round(progress * 100)}%`
@@ -41,7 +41,7 @@ class RepoFetcher extends Component {
         return (
             <div className={style.root}>
                 <h2 className={style.dialogTitle}>
-                    Fetching dataset
+                    { `Fetching dataset for ${repoPath}` }
                 </h2>
                 <div className={style.dialogBody}>
                     <div className={style.progressBar}>
