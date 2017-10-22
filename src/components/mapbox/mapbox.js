@@ -9,7 +9,7 @@ import mapboxStyle from './vendor/mapbox-rules'
 import style from './mapbox.css'
 
 const ANIMATION_COORDS_INACURACY_RADIUS = 20
-const ANIMATION_MS_PER_DAY = 10
+const ANIMATION_DURATION = 40000
 const ANIMATION_POINT_SIZE = 2
 const ANIMATION_RIPPLE_RADIUS = 20
 const ANIMATION_TRANSLATE_DURATION = 0.05 // Relative to whole timeline duration
@@ -203,11 +203,11 @@ class Mapbox extends Component {
     
     }   
         
-    animateFromMapToTimeline(points, days) {
+    animateFromMapToTimeline(points) {
 
         return new Promise((resolve) => {
             
-            const duration = days * ANIMATION_MS_PER_DAY
+            const duration = ANIMATION_DURATION
             const timer = d3Timer((elapsed) => {
     
                 const progress = elapsed / duration
