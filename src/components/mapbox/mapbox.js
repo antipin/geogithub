@@ -71,7 +71,7 @@ class Mapbox extends Component {
 
     render() {
 
-        const { mode } = this.props
+        const { mode, repo_path } = this.props
         const { isMapLoaded } = this.state
         const containerClassNames = [ style.root ]
 
@@ -89,6 +89,7 @@ class Mapbox extends Component {
 
         return (
             <div className={containerClassNames.join(' ')}>
+                <h2 className={style.repoName}>{ repo_path }</h2>
                 <div className={style.map} ref={ elem => (this.mapContainer = elem) } />
                 <canvas 
                     className={style.events}
@@ -403,6 +404,7 @@ class Mapbox extends Component {
 
 const mapStateToProps = (state) => ({
     mode: state.mode,
+    repo_path: state.repo_path,
     commitsTimeline: state.commitsTimeline,
 })
 
