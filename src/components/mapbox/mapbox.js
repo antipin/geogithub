@@ -8,7 +8,8 @@ import { actions } from '../../modules'
 import mapboxStyle from './vendor/mapbox-rules'
 import style from './mapbox.css'
 
-const ANIMATION_MS_PER_DAY = 30
+const ANIMATION_COORDS_INACURACY_RADIUS = 20
+const ANIMATION_MS_PER_DAY = 10
 const ANIMATION_POINT_SIZE = 2
 const ANIMATION_RIPPLE_RADIUS = 20
 const ANIMATION_TRANSLATE_DURATION = 0.05 // Relative to whole timeline duration
@@ -156,7 +157,7 @@ class Mapbox extends Component {
                 translateEndTime: (item.day + translateTime) / totalAnimationDays,
                 rippleEndTime: (item.day + rippleTime) / totalAnimationDays,
                 size: ANIMATION_POINT_SIZE,
-                color,
+                color: Mapbox.alphaColor(color, 0.5),
                 finalColor: Mapbox.alphaColor(color, 0.2),
                 rippleColor: Mapbox.alphaColor(color, 0.5),
                 radius: 0,
@@ -168,23 +169,17 @@ class Mapbox extends Component {
 
     convertLatLngToCanvasCoords(coords) {
         
-        const [ lng, lat ] = coords
-        const lngSign = Math.random() > 0.5 ? 1 : -1
-        const latSign = Math.random() > 0.5 ? 1 : -1
-        const lngMistake = lngSign * (Math.random())
-        const latMistake = latSign * (Math.random())
+        const screenCoords = this.map.project(coords)
+        const inaccurateScreenCoords = Mapbox.addInaccuracyToCoords(screenCoords, ANIMATION_COORDS_INACURACY_RADIUS)
 
-        return this.map.project([
-            lng + lngMistake,
-            lat + latMistake,
-        ])
+        return inaccurateScreenCoords
 
     }
 
     convertEventToTimelineCoords(item, days, maxPerDay, pointSize) {
 
-        const sideOffset = 100
-        const bottomOffset = 10
+        const sideOffset = 120
+        const bottomOffset = 0
         const { width, height } = this.canvas.getBoundingClientRect()
         const lengthOfTimeline = width - 2 * sideOffset
         const pxPerDay = lengthOfTimeline / days
@@ -225,6 +220,7 @@ class Mapbox extends Component {
                         const translateDuration = translateEndTime - startTime
                         const transpateProgress = Math.min(1, easeCubic((progress - startTime) / translateDuration))
     
+                        // Update position of thr transitioning dot
                         point.isVisible = true
                         currentPos.x = sourcePos.x * (1 - transpateProgress) + targetPos.x * transpateProgress
                         currentPos.y = sourcePos.y * (1 - transpateProgress) + targetPos.y * transpateProgress
@@ -360,6 +356,21 @@ class Mapbox extends Component {
         const [ , r, g, b ] = parsedColor
 
         return `rgba(${r}, ${g}, ${b}, ${alphaSafe})`
+
+    }
+
+    static addInaccuracyToCoords(coords, radius = 20) {
+        
+        // Make radiusRatio more likely to gravitate to zero
+        const radiusRatio = 1 - Math.sqrt(1 - Math.pow(Math.random(), 2))
+        const randomRadius = radius * radiusRatio
+        const randomAngle = 2 * Math.PI * Math.random()
+        const { x, y } = coords
+
+        return {
+            x: x + Math.sin(randomAngle) * randomRadius,
+            y: y + Math.cos(randomAngle) * randomRadius,
+        }
 
     }
     
