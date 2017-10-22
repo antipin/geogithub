@@ -5,7 +5,12 @@ import style from './repo-picker.css'
 
 const KEY_ESC = 27
 const KEY_RETURN = 13
-const EXAMPLES = [ 'facebook/react', 'nodejs/node', 'twbs/bootstrap', 'ReactTraining/history', 'angular/angular.js' ]
+const EXAMPLES = [
+    'facebook/react', 'nodejs/node', 'twbs/bootstrap', 'ReactTraining/history', 'angular/angular.js',
+    'facebook/react-native', 'jquery/jquery', 'atom/atom', 'meteor/meteor', 'moby/moby', 'golang/go',
+    'kubernetes/kubernetes', 'rust-lang/rust', 'laravel/laravel', 'symfony/symfony', 'rails/rails',
+    'jakubroztocil/httpie', 'nvbn/thefuck', 'pallets/flask', 'django/django',
+]
 
 class RepoPicker extends Component {
 
