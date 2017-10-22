@@ -5,7 +5,7 @@ import style from './repo-picker.css'
 
 const KEY_ESC = 27
 const KEY_RETURN = 13
-const EXAMPLES = [ 'facebook/react', 'nodejs/node', 'twbs/bootstrap', 'ReactTraining/history' ]
+const EXAMPLES = [ 'facebook/react', 'nodejs/node', 'twbs/bootstrap', 'ReactTraining/history', 'angular/angular.js' ]
 
 class RepoPicker extends Component {
 
@@ -14,7 +14,7 @@ class RepoPicker extends Component {
         super(props)
 
         this.state = {
-            repoPath: 'nodejs/node',
+            repoPath: '',
         }
 
         this.handleExampleClick = this.handleExampleClick.bind(this)
@@ -34,44 +34,42 @@ class RepoPicker extends Component {
 
         const { repoPath } = this.state
         
-        return (
+        return (            
             <div className={style.root}>
-                <div className={style.dialog}>
-                    <h2 className={style.dialogTitle}>
-                        Type in github repo name for visualisation
-                    </h2>
-                    <div className={style.dialogBody}>
-                        <div className={style.field}>
-                            <div className={style.fieldInput}>
-                                <input
-                                    type="text" 
-                                    className={style.input}
-                                    onChange={this.handleSearchChange}
-                                    onKeyDown={this.handleSearchKeyDown}
-                                    ref={(elem) => (this.input = elem)}
-                                    value={repoPath}
-                                    placeholder="facebook/react"
-                                />
-                            </div>
-                            <div className={style.fieldDescription}>
-                                <span className={style.exampleTitle}>Examples:</span>
-                                {
-                                    EXAMPLES.map(example => (
-                                        <span
-                                            key={example} 
-                                            onClick={this.handleExampleClick.bind(this, example)}
-                                            className={style.example}>
-                                            { example }
-                                        </span>
-                                    ))
-                                }
-                            </div>
+                <h2 className={style.dialogTitle}>
+                    Type in github repo name for visualisation
+                </h2>
+                <div className={style.dialogBody}>
+                    <div className={style.field}>
+                        <div className={style.fieldInput}>
+                            <input
+                                type="text" 
+                                className={style.input}
+                                onChange={this.handleSearchChange}
+                                onKeyDown={this.handleSearchKeyDown}
+                                ref={(elem) => (this.input = elem)}
+                                value={repoPath}
+                                placeholder="facebook/react"
+                            />
+                        </div>
+                        <div className={style.fieldDescription}>
+                            <span className={style.exampleTitle}>Examples:</span>
+                            {
+                                EXAMPLES.map(example => (
+                                    <span
+                                        key={example} 
+                                        onClick={this.handleExampleClick.bind(this, example)}
+                                        className={style.example}>
+                                        { example }
+                                    </span>
+                                ))
+                            }
                         </div>
                     </div>
-                    <div className={style.dialogFooter}>
-                        <div className={style.button} onClick={this.handleGoClick}>
-                            go!
-                        </div>
+                </div>
+                <div className={style.dialogFooter}>
+                    <div className={style.button} onClick={this.handleGoClick}>
+                        go!
                     </div>
                 </div>
             </div>
