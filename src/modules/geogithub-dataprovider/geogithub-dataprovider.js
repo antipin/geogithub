@@ -1,5 +1,6 @@
 import eachLimit from 'async/eachLimit'
 import pick from 'lodash/pick'
+import EventEmitter from 'eventemitter3'
 import Fetch from '../fetch'
 import datasetHistory from './dataset-history.json'
 import datasetReat from './dataset-react.json'
@@ -10,14 +11,30 @@ const PARALLEL_REQUESTS_LIMIT = 25
 const MAPBOX_BASE_URL = 'https://api.mapbox.com'
 const GITHUB_BASE_URL = 'https://api.github.com/repos'
 const COLLECTION_PER_PAGE = 100
+const PROGRESS_QUOTES = {
+    repo: 0.05,
+    contributors: 0.15,
+    locations: 0.3,
+    geo: 0.2,
+    commits: 0.3,
+}
 
-export default class GeoGithubDataprovider {
+const quoteSum = Object.keys(PROGRESS_QUOTES)
+    .map(jobName => PROGRESS_QUOTES[jobName])
+    .reduce((sum, quote) => (sum += quote, sum), 0) // eslint-disable-line
+
+if (quoteSum !== 1) throw new Error(`PROGRESS_QUOTES should adds up to 1 instead of ${quoteSum}`)
+
+export default class GeoGithubDataprovider extends EventEmitter {
 
     constructor({ repoPath, githubToken, mapboxToken }) {
+        
+        super()
         
         this.repoPath = repoPath
         this.github = GeoGithubDataprovider.makeGithubFetcher(githubToken)
         this.mapbox = GeoGithubDataprovider.makeMapboxFetcher(mapboxToken)
+        this.progress = 0
 
     }
 
@@ -41,14 +58,11 @@ export default class GeoGithubDataprovider {
 
         }
 
-        console.timeEnd('fetching')
-        
         return this.fetchRepo()
             .then(this.fetchContributors.bind(this))
             .then(this.fetchContributorLocations.bind(this))
             .then(this.fetchGeo.bind(this))
             .then(this.fetchCommits.bind(this))
-            .then(console.timeEnd('fetching'))
             
     }
         
@@ -62,6 +76,9 @@ export default class GeoGithubDataprovider {
 
         // Enrich dataset with repo details
         dataset.repo = GeoGithubDataprovider.formatRepo(repoData)
+
+        this.progress += PROGRESS_QUOTES.repo
+        this.emit('progress', this.progress)
 
         return Promise.resolve(dataset)
 
@@ -80,6 +97,14 @@ export default class GeoGithubDataprovider {
             throw new TypeError('fetchContributors needs dataset.repo to be fetched')
 
         }
+
+        // Update progress
+        this.github.on('progress', ({ total }) => {
+
+            this.progress += (1 / total) * PROGRESS_QUOTES.contributors
+            this.emit('progress', this.progress)
+
+        })
 
         const contributorsData = await this.github.getCollection(repo.contributors_url, {
             per_page: COLLECTION_PER_PAGE
@@ -122,12 +147,13 @@ export default class GeoGithubDataprovider {
             const cotributorUrls = Object.keys(contributors).map(
                 cotributorId => contributors[cotributorId].url
             )
-            
+            const progressDelta = (1 / cotributorUrls.length) * PROGRESS_QUOTES.locations
+
             eachLimit(
                 cotributorUrls,
                 PARALLEL_REQUESTS_LIMIT,
                 (cotributorUrl, next) => {
-                    
+                
                     this.github.get(cotributorUrl)
                         .then(cotributorData => {
                             
@@ -137,6 +163,9 @@ export default class GeoGithubDataprovider {
                                 pick(cotributorData, 'location', 'name', 'email')
                             )
                             
+                            this.progress += progressDelta
+                            this.emit('progress', this.progress)
+
                             return next()
 
                         })
@@ -178,7 +207,8 @@ export default class GeoGithubDataprovider {
                 cotributorId => contributors[cotributorId].location
             )
             const uniqueCotributorLocations = new Set(cotributorLocations)
-            
+            const progressDelta = (1 / uniqueCotributorLocations.size) * PROGRESS_QUOTES.geo
+
             dataset.locations = {}
             
             eachLimit(
@@ -194,6 +224,9 @@ export default class GeoGithubDataprovider {
                         .then(geocodeData => {
 
                             const location = GeoGithubDataprovider.formatGeo(geocodeData)
+
+                            this.progress += progressDelta
+                            this.emit('progress', this.progress)
 
                             if (location !== null) {
                                 
@@ -235,6 +268,14 @@ export default class GeoGithubDataprovider {
 
         }
 
+        // Update progress
+        this.github.on('progress', ({ total }) => {
+
+            this.progress += (1 / total) * PROGRESS_QUOTES.commits
+            this.emit('progress', this.progress)
+
+        })
+        
         const commitsData = await this.github.getCollection(`${GITHUB_BASE_URL}/${this.repoPath}/commits`, {
             per_page: COLLECTION_PER_PAGE
         })

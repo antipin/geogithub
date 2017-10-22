@@ -1,8 +1,9 @@
 import parsePaginationLinks from 'parse-link-header'
 import each from 'async/each'
 import range from 'lodash/range'
+import EventEmitter from 'eventemitter3'
 
-export default class Fetch {
+export default class Fetch extends EventEmitter {
 
     /**
      * @param {Object} fetchOptions This object will be passed to window.fetch()
@@ -10,6 +11,8 @@ export default class Fetch {
      * @param {Object} defaultQuery Default query params that will be appended to every request
      */
     constructor({ fetchOptions = {}, defaultQuery = {} }) {
+
+        super()
 
         this.fetchOptions = fetchOptions
         this.defaultQuery = defaultQuery
@@ -61,14 +64,18 @@ export default class Fetch {
      * Performs parallel requests in order to fetch all remainding pages of collection
      * @param {string} endpoint 
      * @param {Object} query 
-     * @param {number} lastPage 
+     * @param {number} total 
      * @param {Array} result 
      * @returns {Promise.<Object>}
      */
-    fetchOtherPages(endpoint, query, lastPage, result) {
+    fetchOtherPages(endpoint, query, total, result) {
 
+        const delta = 1 / total
+        let progress = delta // As far as first page already fetched
+        let current = 1
+        
         return new Promise((resolve, reject) => each(
-            range(2, lastPage + 1),
+            range(current, total + 1),
             (currentPage, next) => {
             
                 const optionsWithPage = Object.assign({ page: currentPage }, query)
@@ -78,6 +85,10 @@ export default class Fetch {
                         
                         Array.prototype.push.apply(result, nthPageResponse.body)
                         
+                        progress += delta
+                        current += 1
+                        this.emit('progress', { progress, current, total })
+
                         return next()
 
                     })

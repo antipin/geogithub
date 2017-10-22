@@ -1,8 +1,6 @@
 import { createAction } from 'redux-actions'
 import { GeoGithubDataprovider, GeoEventsTimeline } from '../'
 
-const sigmoidFunc = (x) => 1 / (1 + Math.pow(Math.E, -(x - 4)))
-
 const selectRepo = createAction('SELECT_REPO')
 const fetchRepoDatasetProgress = createAction('FETCH_REPO_DATASET_PROGRESS')
 const fetchRepoDatasetSucceeded = createAction('FETCH_REPO_DATASET_SUCCEEDED')
@@ -12,31 +10,11 @@ const fetchRepoDataset = createAction('FETCH_REPO_DATASET', ({ repoPath, githubT
     
         const geoGithubDataprovider = new GeoGithubDataprovider({ repoPath, githubToken, mapboxToken })
         
-        // Fake progress
-        let progress = 0
-        const progressTimer = setInterval(
-            () => {
-
-                progress += 0.5
-
-                dispatch(fetchRepoDatasetProgress(
-                    sigmoidFunc(progress)
-                ))
-
-            },
-            500
+        geoGithubDataprovider.on('progress', (progress) => 
+            dispatch(fetchRepoDatasetProgress(progress))
         )
 
         geoGithubDataprovider.fetch()
-            .then(dataset => { 
-                
-                clearInterval(progressTimer)
-                dispatch(fetchRepoDatasetProgress(1))
-                
-                return Promise.resolve(dataset)
-
-            })
-            // Convert raw dataset into
             .then(dataset => Promise.resolve(
                 new GeoEventsTimeline({
                     events: dataset.commits,
@@ -49,7 +27,6 @@ const fetchRepoDataset = createAction('FETCH_REPO_DATASET', ({ repoPath, githubT
             ))
             .catch(error => {
                 
-                clearInterval(progressTimer)
                 console.error(error)
                 dispatch(fetchRepoDatasetFailed(error))
 
