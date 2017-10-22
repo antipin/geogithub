@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import mapboxGL from 'mapbox-gl'
 import { timer as d3Timer } from 'd3-timer'
 import { easeCubic } from 'd3-ease'
+import { interpolateRainbow } from 'd3-scale'
 import { actions } from '../../modules'
 import mapboxStyle from './vendor/mapbox-rules'
 import style from './mapbox.css'
@@ -204,7 +205,7 @@ class Mapbox extends Component {
                 if (progress >= 1) {
     
                     timer.stop()
-                    this.clear()
+                    // this.clear()
                     
                     return resolve()
     
@@ -250,17 +251,25 @@ class Mapbox extends Component {
         const { days, items, maxPerDay } = timeline
         const translateTime = 60
         const totalAnimationDays = days + translateTime
+        
+        return items.map(item => {
 
-        return items.map(item => ({
-            isVisible: false,
-            sourcePos: calcSourceLayout(item.coords),
-            currentPos: calcSourceLayout(item.coords),
-            targetPos: calcTargetLayout(item, days, maxPerDay, pointSize),
-            color: '#FFFFFF', // todo: Map contries to colors 
-            size: pointSize,
-            startTime: item.day / totalAnimationDays,
-            endTime: (item.day + translateTime) / totalAnimationDays,
-        }))
+            let [ longitude ] = item.coords
+            longitude += 180 // Map longitude from -180..180 to 0..360
+            const color = interpolateRainbow(longitude / 360)
+
+            return {
+                isVisible: false,
+                sourcePos: calcSourceLayout(item.coords),
+                currentPos: calcSourceLayout(item.coords),
+                targetPos: calcTargetLayout(item, days, maxPerDay, pointSize),
+                startTime: item.day / totalAnimationDays,
+                endTime: (item.day + translateTime) / totalAnimationDays,
+                size: pointSize,
+                color,
+            }
+
+        })
 
     }
     
