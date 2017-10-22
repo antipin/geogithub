@@ -107,6 +107,11 @@ class Mapbox extends Component {
 
         switch (mode) {
 
+            case 'waiting_for_repo_selection':
+                
+                this.clear()
+                break
+
             case 'fetching_repo_dataset_succeded':
                 
                 // Waiting for animations to complete
