@@ -37,16 +37,15 @@ const fetchRepoDataset = createAction('FETCH_REPO_DATASET', ({ repoPath, githubT
 
             })
             // Convert raw dataset into
-            .then(dataset => Promise.resolve({ 
-                commitsTimeline: new GeoEventsTimeline({
+            .then(dataset => Promise.resolve(
+                new GeoEventsTimeline({
                     events: dataset.commits,
                     users: dataset.contributors,
                     locations: dataset.locations,
-                }),
-                dataset,
-            }))
-            .then(({ commitsTimeline, dataset }) => dispatch(
-                fetchRepoDatasetSucceeded({ commitsTimeline, dataset })
+                })
+            ))
+            .then((commitsTimeline) => dispatch(
+                fetchRepoDatasetSucceeded(commitsTimeline)
             ))
             .catch(error => {
                 

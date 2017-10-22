@@ -53,6 +53,8 @@
   },
   "dependencies": {
     "async": "2.5.0",
+    "d3-ease": "1.0.3",
+    "d3-timer": "1.0.7",
     "keymirror": "0.1.1",
     "lodash": "4.17.4",
     "mapbox-gl": "0.41.0",
