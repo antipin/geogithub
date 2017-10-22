@@ -5,6 +5,7 @@ import style from './repo-picker.css'
 
 const KEY_ESC = 27
 const KEY_RETURN = 13
+const EXAMPLES = [ 'facebook/react', 'nodejs/node', 'twbs/bootstrap', 'ReactTraining/history' ]
 
 class RepoPicker extends Component {
 
@@ -13,9 +14,10 @@ class RepoPicker extends Component {
         super(props)
 
         this.state = {
-            repoPath: 'facebook/react',
+            repoPath: 'nodejs/node',
         }
 
+        this.handleExampleClick = this.handleExampleClick.bind(this)
         this.handleSearchChange = this.handleSearchChange.bind(this)
         this.handleSearchKeyDown = this.handleSearchKeyDown.bind(this)
         this.handleGoClick = this.handleGoClick.bind(this)
@@ -39,16 +41,31 @@ class RepoPicker extends Component {
                         Type in github repo name for visualisation
                     </h2>
                     <div className={style.dialogBody}>
-                        <div className={style.fieldInput}>
-                            <input
-                                type="text" 
-                                className={style.input}
-                                onChange={this.handleSearchChange}
-                                onKeyDown={this.handleSearchKeyDown}
-                                ref={(elem) => (this.input = elem)}
-                                value={repoPath}
-                                placeholder="facebook/react"
-                            />
+                        <div className={style.field}>
+                            <div className={style.fieldInput}>
+                                <input
+                                    type="text" 
+                                    className={style.input}
+                                    onChange={this.handleSearchChange}
+                                    onKeyDown={this.handleSearchKeyDown}
+                                    ref={(elem) => (this.input = elem)}
+                                    value={repoPath}
+                                    placeholder="facebook/react"
+                                />
+                            </div>
+                            <div className={style.fieldDescription}>
+                                <span className={style.exampleTitle}>Examples:</span>
+                                {
+                                    EXAMPLES.map(example => (
+                                        <span
+                                            key={example} 
+                                            onClick={this.handleExampleClick.bind(this, example)}
+                                            className={style.example}>
+                                            { example }
+                                        </span>
+                                    ))
+                                }
+                            </div>
                         </div>
                     </div>
                     <div className={style.dialogFooter}>
@@ -60,6 +77,15 @@ class RepoPicker extends Component {
             </div>
         )
         
+    }
+
+    handleExampleClick(example) {
+        
+        this.setState({
+            ...this.state,
+            repoPath: example,
+        })
+
     }
 
     handleSearchChange(event) {

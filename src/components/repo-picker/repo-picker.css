@@ -35,19 +35,41 @@
     text-align: center;
 }
 
+.field {
+    width: 80%;
+    margin: 0 auto;
+}
 .field-input {
     display: block;
     text-align: center
+}
+
+.field-description {
+    font-size: 12px;
+    padding-top: 10px;
+    text-align: left;
+    color: rgba(255, 255, 255, 0.6)
+}
+
+.example, .example-title {
+    display: inline-block;
+    padding: 4px 10px;
+}
+
+.example {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .input {
     display: inline-block;
     border: 1px solid #FFF;
     background-color: transparent;
+    box-sizing: border-box;
     font-size: 16px;
     padding: 10px;
     color: inherit;
-    width: 50%;
+    width: 100%;
 }
 
 .input:focus {
