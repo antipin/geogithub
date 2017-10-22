@@ -3,6 +3,8 @@ import pick from 'lodash/pick'
 import Fetch from '../fetch'
 import datasetHistory from './dataset-history.json'
 import datasetReat from './dataset-react.json'
+import datasetNode from './dataset-node.json'
+import datasetBootstrap from './dataset-bootstrap.json'
 
 const PARALLEL_REQUESTS_LIMIT = 25
 const MAPBOX_BASE_URL = 'https://api.mapbox.com'
@@ -24,6 +26,8 @@ export default class GeoGithubDataprovider {
         const mapRepoPathToDataset = {
             'ReactTraining/history': datasetHistory,
             'facebook/react': datasetReat,
+            'nodejs/node': datasetNode,
+            'twbs/bootstrap' :datasetBootstrap,
         }
         const preloadedDataset = mapRepoPathToDataset[this.repoPath]
 
