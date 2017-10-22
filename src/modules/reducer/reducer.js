@@ -17,6 +17,12 @@ function makeReducer({ initialState, modes }) {
             progressTask: action.payload.task,
             progress: action.payload.progress,
         }),
+        FETCH_REPO_DATASET_RATE_LIMITS: (state, action) => ({
+            ...state,
+            rateLimitsProgress: action.payload.progress,
+            rateLimitsRemaining: action.payload.remaining,
+            rateLimitsLimit: action.payload.limit,
+        }),
         FETCH_REPO_DATASET_FAILED: (state, action) => ({
             ...state,
             mode: modes.fetching_repo_dataset_failed,

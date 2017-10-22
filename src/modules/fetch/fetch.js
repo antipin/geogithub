@@ -10,12 +10,13 @@ export default class Fetch extends EventEmitter {
      *                                (@see https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch)
      * @param {Object} defaultQuery Default query params that will be appended to every request
      */
-    constructor({ fetchOptions = {}, defaultQuery = {} }) {
+    constructor({ fetchOptions = {}, defaultQuery = {}, options = {} }) {
 
         super()
 
         this.fetchOptions = fetchOptions
         this.defaultQuery = defaultQuery
+        this.options = options
 
     }
 
@@ -121,7 +122,35 @@ export default class Fetch extends EventEmitter {
         const url = new URL(endpoint)
         url.search = (new URLSearchParams(extendedQuery)).toString()
         
-        return await fetch(url.toString(), fetchOptions).then(Fetch.checkStatus)
+        return await fetch(url.toString(), fetchOptions)
+            .then(this.emitRateLimits.bind(this))
+            .then(Fetch.checkStatus)
+
+    }
+
+    emitRateLimits(response) {
+
+        const { headers } = response
+        const { 
+            rateLimitHeaderNameLimit,
+            rateLimitHeaderNameRemaining, 
+            rateLimitHeaderNameReset 
+        } = this.options
+
+        if (rateLimitHeaderNameLimit && rateLimitHeaderNameRemaining && rateLimitHeaderNameReset) {
+
+            const limit = headers.get(rateLimitHeaderNameLimit)
+            const remaining = headers.get(rateLimitHeaderNameRemaining)
+                
+            this.emit('rate-limits', {
+                progress: remaining / limit,
+                remaining,
+                limit,
+            })
+
+        }
+        
+        return Promise.resolve(response)
 
     }
     

@@ -32,7 +32,7 @@ class Root extends Component {
     
             case 'fetching_repo_dataset_failed':
                 return (
-                    <ErrorBox title="Looks like something went wrong with data fetching">
+                    <ErrorBox title="Looks like something went wrong">
                         { errorMessage }
                     </ErrorBox>
                 )

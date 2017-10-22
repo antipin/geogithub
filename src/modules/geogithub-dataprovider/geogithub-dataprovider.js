@@ -38,6 +38,9 @@ export default class GeoGithubDataprovider extends EventEmitter {
 
         this.onContributorsProgress = this.onContributorsProgress.bind(this)
         this.onCommitsProgress = this.onCommitsProgress.bind(this)
+        this.onGithubRateLimits = this.onGithubRateLimits.bind(this)
+
+        this.github.on('rate-limits', this.onGithubRateLimits)
         
     }
 
@@ -309,6 +312,16 @@ export default class GeoGithubDataprovider extends EventEmitter {
 
     }
 
+    onGithubRateLimits({ progress, remaining, limit }) {
+
+        this.emit('github-rate-limits', {
+            progress,
+            remaining,
+            limit,
+        })
+
+    }
+
     static formatRepo(data) {
 
         return pick(data, [
@@ -389,8 +402,13 @@ export default class GeoGithubDataprovider extends EventEmitter {
             },
             mode: 'cors',
         }
+        const options = {
+            rateLimitHeaderNameLimit: 'X-RateLimit-Limit',
+            rateLimitHeaderNameRemaining: 'X-RateLimit-Remaining',
+            rateLimitHeaderNameReset: 'X-RateLimit-Reset',
+        }
 
-        return new Fetch({ fetchOptions }) 
+        return new Fetch({ fetchOptions, options }) 
 
     }
 
@@ -406,8 +424,13 @@ export default class GeoGithubDataprovider extends EventEmitter {
         const defaultQuery = {
             access_token: accessToken
         }
-
-        return new Fetch({ fetchOptions, defaultQuery }) 
+        const options = {
+            rateLimitHeaderNameLimit: 'X-Rate-Limit-Limit',
+            rateLimitHeaderNameRemaining: null,
+            rateLimitHeaderNameReset: 'X-Rate-Limit-Reset',
+        }
+        
+        return new Fetch({ fetchOptions, defaultQuery, options }) 
 
     }
 
