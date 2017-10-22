@@ -15,13 +15,15 @@ As far as this application talks with github and mapbox APIs, first you need to 
 
 See **How to get access tokens** section below.
 
+The following command starts dev server:
+
 ```
 GITHUB_TOKEN=<github_access_token> MAPBOX_TOKEN=<mapbox_access_token> npm run start:dev
 ```
 
 Now you cat open application on [localhost:8000](http://localhost:8000)
 
-If you want just build project, run
+If you want just build project, run:
 ```
 GITHUB_TOKEN=<github_access_token> MAPBOX_TOKEN=<mapbox_access_token> npm run build:dev
 ```
