@@ -36,6 +36,9 @@ export default class GeoGithubDataprovider extends EventEmitter {
         this.mapbox = GeoGithubDataprovider.makeMapboxFetcher(mapboxToken)
         this.progress = 0
 
+        this.onContributorsProgress = this.onContributorsProgress.bind(this)
+        this.onCommitsProgress = this.onCommitsProgress.bind(this)
+        
     }
 
     fetch() {
@@ -78,7 +81,10 @@ export default class GeoGithubDataprovider extends EventEmitter {
         dataset.repo = GeoGithubDataprovider.formatRepo(repoData)
 
         this.progress += PROGRESS_QUOTES.repo
-        this.emit('progress', this.progress)
+        this.emit('progress', { 
+            progress: this.progress,
+            task: `Fetching repo ${this.repoPath} details`
+        })
 
         return Promise.resolve(dataset)
 
@@ -98,17 +104,11 @@ export default class GeoGithubDataprovider extends EventEmitter {
 
         }
 
-        // Update progress
-        this.github.on('progress', ({ total }) => {
-
-            this.progress += (1 / total) * PROGRESS_QUOTES.contributors
-            this.emit('progress', this.progress)
-
-        })
-
+        this.github.on('progress', this.onContributorsProgress)
         const contributorsData = await this.github.getCollection(repo.contributors_url, {
             per_page: COLLECTION_PER_PAGE
         })
+        this.github.removeListener('progress', this.onContributorsProgress)
 
         // Enrich dataset with contributors
         dataset.contributors = contributorsData.reduce(
@@ -164,7 +164,10 @@ export default class GeoGithubDataprovider extends EventEmitter {
                             )
                             
                             this.progress += progressDelta
-                            this.emit('progress', this.progress)
+                            this.emit('progress', { 
+                                progress: this.progress,
+                                task: `Fetching location of "${cotributorData.login}" contributor`
+                            })
 
                             return next()
 
@@ -226,7 +229,10 @@ export default class GeoGithubDataprovider extends EventEmitter {
                             const location = GeoGithubDataprovider.formatGeo(geocodeData)
 
                             this.progress += progressDelta
-                            this.emit('progress', this.progress)
+                            this.emit('progress', {
+                                progress: this.progress,
+                                task: `Fetching geo coordinates for "${cotributorLocation}"`
+                            })
 
                             if (location !== null) {
                                 
@@ -268,17 +274,11 @@ export default class GeoGithubDataprovider extends EventEmitter {
 
         }
 
-        // Update progress
-        this.github.on('progress', ({ total }) => {
-
-            this.progress += (1 / total) * PROGRESS_QUOTES.commits
-            this.emit('progress', this.progress)
-
-        })
-        
+        this.github.on('progress', this.onCommitsProgress)
         const commitsData = await this.github.getCollection(`${GITHUB_BASE_URL}/${this.repoPath}/commits`, {
             per_page: COLLECTION_PER_PAGE
         })
+        this.github.removeListener('progress', this.onCommitsProgress)
 
         // Enrich dataset with commits
         dataset.commits = commitsData
@@ -286,6 +286,26 @@ export default class GeoGithubDataprovider extends EventEmitter {
             .filter(commitData => commitData !== null)
 
         return Promise.resolve(dataset)
+
+    }
+
+    onContributorsProgress({ total }) {
+
+        this.progress += (1 / total) * PROGRESS_QUOTES.contributors
+        this.emit('progress', { 
+            progress: this.progress,
+            task: 'Fetching contributors'
+        })
+
+    }
+
+    onCommitsProgress({ current, total }) {
+
+        this.progress += (1 / total) * PROGRESS_QUOTES.commits
+        this.emit('progress', {
+            progress: this.progress,
+            task: `Fetching commits page ${current} of ${total}`
+        })
 
     }
 

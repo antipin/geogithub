@@ -14,7 +14,8 @@ function makeReducer({ initialState, modes }) {
         }),
         FETCH_REPO_DATASET_PROGRESS: (state, action) => ({
             ...state,
-            progress: action.payload,
+            progressTask: action.payload.task,
+            progress: action.payload.progress,
         }),
         FETCH_REPO_DATASET_FAILED: (state, action) => ({
             ...state,

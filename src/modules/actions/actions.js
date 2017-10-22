@@ -10,8 +10,8 @@ const fetchRepoDataset = createAction('FETCH_REPO_DATASET', ({ repoPath, githubT
     
         const geoGithubDataprovider = new GeoGithubDataprovider({ repoPath, githubToken, mapboxToken })
         
-        geoGithubDataprovider.on('progress', (progress) => 
-            dispatch(fetchRepoDatasetProgress(progress))
+        geoGithubDataprovider.on('progress', ({ progress, task }) => 
+            dispatch(fetchRepoDatasetProgress({ progress, task }))
         )
 
         geoGithubDataprovider.fetch()

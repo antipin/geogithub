@@ -72,7 +72,10 @@ export default class Fetch extends EventEmitter {
 
         const delta = 1 / total
         let progress = delta // As far as first page already fetched
-        let current = 1
+        let current = 2
+
+        // Emit for first page
+        this.emit('progress', { progress, current: 1, total })
         
         return new Promise((resolve, reject) => each(
             range(current, total + 1),
@@ -86,8 +89,8 @@ export default class Fetch extends EventEmitter {
                         Array.prototype.push.apply(result, nthPageResponse.body)
                         
                         progress += delta
-                        current += 1
                         this.emit('progress', { progress, current, total })
+                        current += 1
 
                         return next()
 
