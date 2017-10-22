@@ -17,13 +17,8 @@ class TryAgain extends Component {
         
         return (
             <div className={style.dialog}>
-                <h2 className={style.dialogTitle}>
-                    Try again?
-                </h2>
-                <div className={style.dialogBody}>
-                    <div className={style.button} onClick={this.handleTryAgainClick}>
-                        ok
-                    </div>
+                <div className={style.button} onClick={this.handleTryAgainClick}>
+                    again?
                 </div>
             </div>
         )

@@ -4,19 +4,13 @@
 
 .dialog {
     position: absolute;
-    height: 50vh;
-    width: 60vw;
-    top: 50%;
+    top: 75%;
     left: 50%;
     transform: translate(-50%, -50%);
     color: #FFF;
     font-weight: 100;
 }
 
-.dialog-title {
-    font-size: 2em;
-    text-align: center;
-}
 
 .dialog-body {
     padding-top: 10px;
@@ -27,9 +21,10 @@
     display: inline-block;
     border: 1px solid #FFF;
     border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    line-height: 56px;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    line-height: 94px;
     font-size: 16px;
     color: inherit;
     cursor: pointer;
