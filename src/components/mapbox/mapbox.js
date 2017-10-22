@@ -2,14 +2,17 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import mapboxGL from 'mapbox-gl'
 import { timer as d3Timer } from 'd3-timer'
-import { easeCubic } from 'd3-ease'
-import { interpolateRainbow } from 'd3-scale'
+import { easeCubic, easeExpOut } from 'd3-ease'
+import { interpolateCool } from 'd3-scale'
 import { actions } from '../../modules'
 import mapboxStyle from './vendor/mapbox-rules'
 import style from './mapbox.css'
 
-const ANIMATION_MS_PER_DAY = 10
+const ANIMATION_MS_PER_DAY = 50
 const ANIMATION_POINT_SIZE = 2
+const ANIMATION_RIPPLE_RADIUS = 45
+const ANIMATION_TRANSLATE_DURATION = 0.05 // Relative to whole timeline duration
+const ANIMATION_RIPPLE_DURATION = 0.025   // Relative to whole timeline duration
 const MAPBOX_STYLE = 'mapbox://styles/mapbox/dark-v9'
 const ACTIVE_MODES = [ 
     'fetching_repo_dataset_succeded',
@@ -110,12 +113,7 @@ class Mapbox extends Component {
                 const { commitsTimeline } = this.props
 
                 // Prepare canvas model from commitsTimeline
-                const canvasModel = Mapbox.convertEventsTimelineToModel({
-                    timeline: commitsTimeline,
-                    calcSourceLayout: this.convertLatLngToCanvasCoords.bind(this),
-                    calcTargetLayout: this.convertEventToTimelineCoords.bind(this),
-                    pointSize: ANIMATION_POINT_SIZE,
-                })
+                const canvasModel = this.convertEventsTimelineToModel(commitsTimeline)
 
                 this.animateFromMapToTimeline(canvasModel, commitsTimeline.days)
                     .then(() => setTimeout(
@@ -130,6 +128,37 @@ class Mapbox extends Component {
                 // do-nothing
 
         }
+
+    }
+
+    convertEventsTimelineToModel(timeline) {
+        
+        const { days, items, maxPerDay } = timeline
+        const translateTime = days * ANIMATION_TRANSLATE_DURATION
+        const rippleTime = days * ANIMATION_RIPPLE_DURATION
+        const totalAnimationDays = days + translateTime
+        
+        return items.map(item => {
+
+            let [ longitude ] = item.coords
+            longitude += 180 // Map longitude from -180..180 to 0..360
+            const color = interpolateCool(longitude / 360)
+
+            return {
+                isVisible: false,
+                sourcePos: this.convertLatLngToCanvasCoords(item.coords),
+                currentPos: this.convertLatLngToCanvasCoords(item.coords),
+                targetPos: this.convertEventToTimelineCoords(item, days, maxPerDay, ANIMATION_POINT_SIZE),
+                startTime: item.day / totalAnimationDays,
+                translateEndTime: (item.day + translateTime) / totalAnimationDays,
+                rippleEndTime: (item.day + rippleTime) / totalAnimationDays,
+                size: ANIMATION_POINT_SIZE,
+                color,
+                rippleColor: Mapbox.alphaColor(color, 0.5),
+                radius: 0,
+            }
+
+        })
 
     }
 
@@ -185,17 +214,23 @@ class Mapbox extends Component {
     
                 points.forEach(point => {
     
-                    const { sourcePos, targetPos, currentPos, startTime, endTime } = point
+                    const { sourcePos, targetPos, currentPos, startTime, translateEndTime, rippleEndTime } = point
     
                     if (progress >= startTime) {
     
-                        const localDuration = endTime - startTime
-                        const localProgress = Math.min(1, easeCubic((progress - startTime) / localDuration))
+                        const translateDuration = translateEndTime - startTime
+                        const transpateProgress = Math.min(1, easeCubic((progress - startTime) / translateDuration))
     
                         point.isVisible = true
-                        currentPos.x = sourcePos.x * (1 - localProgress) + targetPos.x * localProgress
-                        currentPos.y = sourcePos.y * (1 - localProgress) + targetPos.y * localProgress
-    
+                        currentPos.x = sourcePos.x * (1 - transpateProgress) + targetPos.x * transpateProgress
+                        currentPos.y = sourcePos.y * (1 - transpateProgress) + targetPos.y * transpateProgress
+
+                        // Update ripple radius
+                        const rippleDuration = rippleEndTime - startTime
+                        const rippleProgress = Math.min(1, easeExpOut((progress - startTime) / rippleDuration))
+                        point.radius = (progress <= rippleEndTime) ? rippleProgress * ANIMATION_RIPPLE_RADIUS : 0
+                        point.rippleColor = Mapbox.alphaColor(point.rippleColor, 1 - rippleProgress)
+                        
                     }
     
                 })
@@ -226,12 +261,21 @@ class Mapbox extends Component {
     
         points.forEach(point => {
             
-            const { isVisible, currentPos, color, size } = point
-            
+            const { isVisible, sourcePos, currentPos, color, rippleColor, radius, size } = point
+        
             if (isVisible) {
 
                 ctx.fillStyle = color
                 ctx.fillRect(currentPos.x, currentPos.y, size, size)
+
+            }
+
+            if (radius > 0) {
+
+                ctx.beginPath()
+                ctx.arc(sourcePos.x, sourcePos.y, radius, 0, Math.PI * 2)
+                ctx.strokeStyle = rippleColor
+                ctx.stroke()
 
             }
 
@@ -246,30 +290,21 @@ class Mapbox extends Component {
 
     }
 
-    static convertEventsTimelineToModel({ timeline, pointSize, calcSourceLayout, calcTargetLayout }) {
-        
-        const { days, items, maxPerDay } = timeline
-        const translateTime = 60
-        const totalAnimationDays = days + translateTime
-        
-        return items.map(item => {
+    static alphaColor(color, alpha = 1) {
 
-            let [ longitude ] = item.coords
-            longitude += 180 // Map longitude from -180..180 to 0..360
-            const color = interpolateRainbow(longitude / 360)
+        const alphaSafe = alpha.toFixed(2)
+        const colorPattern = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([0-9.]+))?\)$/
+        const parsedColor = color.match(colorPattern)
 
-            return {
-                isVisible: false,
-                sourcePos: calcSourceLayout(item.coords),
-                currentPos: calcSourceLayout(item.coords),
-                targetPos: calcTargetLayout(item, days, maxPerDay, pointSize),
-                startTime: item.day / totalAnimationDays,
-                endTime: (item.day + translateTime) / totalAnimationDays,
-                size: pointSize,
-                color,
-            }
+        if (parsedColor === null) {
+         
+            return color
 
-        })
+        }
+
+        const [ , r, g, b ] = parsedColor
+
+        return `rgba(${r}, ${g}, ${b}, ${alphaSafe})`
 
     }
     
