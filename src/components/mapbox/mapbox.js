@@ -3,20 +3,22 @@ import { connect } from 'react-redux'
 import mapboxGL from 'mapbox-gl'
 import { timer as d3Timer } from 'd3-timer'
 import { easeCubic, easeExpOut } from 'd3-ease'
-import { interpolateCool } from 'd3-scale'
+import { interpolateRainbow } from 'd3-scale'
 import { actions } from '../../modules'
 import mapboxStyle from './vendor/mapbox-rules'
 import style from './mapbox.css'
 
-const ANIMATION_MS_PER_DAY = 50
+const ANIMATION_MS_PER_DAY = 30
 const ANIMATION_POINT_SIZE = 2
-const ANIMATION_RIPPLE_RADIUS = 45
+const ANIMATION_RIPPLE_RADIUS = 20
 const ANIMATION_TRANSLATE_DURATION = 0.05 // Relative to whole timeline duration
-const ANIMATION_RIPPLE_DURATION = 0.025   // Relative to whole timeline duration
+const ANIMATION_RIPPLE_DURATION = 0.025 // Relative to whole timeline duration
+const ANIMATION_FINAL_DURATION = 1000
 const MAPBOX_STYLE = 'mapbox://styles/mapbox/dark-v9'
 const ACTIVE_MODES = [ 
     'fetching_repo_dataset_succeded',
     'visualising_repo_dataset',
+    'visualisation_completed',
 ]
 
 class Mapbox extends Component {
@@ -142,10 +144,11 @@ class Mapbox extends Component {
 
             let [ longitude ] = item.coords
             longitude += 180 // Map longitude from -180..180 to 0..360
-            const color = interpolateCool(longitude / 360)
+            const color = interpolateRainbow(longitude / 360)
 
             return {
                 isVisible: false,
+                isBackwards: false,
                 sourcePos: this.convertLatLngToCanvasCoords(item.coords),
                 currentPos: this.convertLatLngToCanvasCoords(item.coords),
                 targetPos: this.convertEventToTimelineCoords(item, days, maxPerDay, ANIMATION_POINT_SIZE),
@@ -154,6 +157,7 @@ class Mapbox extends Component {
                 rippleEndTime: (item.day + rippleTime) / totalAnimationDays,
                 size: ANIMATION_POINT_SIZE,
                 color,
+                finalColor: Mapbox.alphaColor(color, 0.2),
                 rippleColor: Mapbox.alphaColor(color, 0.5),
                 radius: 0,
             }
@@ -232,6 +236,42 @@ class Mapbox extends Component {
                         point.rippleColor = Mapbox.alphaColor(point.rippleColor, 1 - rippleProgress)
                         
                     }
+
+                })
+    
+                this.draw(points)
+    
+                if (progress >= 1) {
+    
+                    timer.stop()
+
+                    this.animateFromTimelineToMap(points).then(resolve)
+    
+                }
+    
+            })
+
+        })
+
+    }
+
+    animateFromTimelineToMap(points) {
+
+        return new Promise((resolve) => {
+            
+            const duration = ANIMATION_FINAL_DURATION
+            const timer = d3Timer((elapsed) => {
+    
+                const progress = Math.min(1, easeCubic(elapsed / duration))
+    
+                points.forEach(point => {
+    
+                    const { sourcePos, targetPos, currentPos } = point
+
+                    point.isVisible = true
+                    point.isBackwards = true
+                    currentPos.x = targetPos.x * (1 - progress) + sourcePos.x * progress
+                    currentPos.y = targetPos.y * (1 - progress) + sourcePos.y * progress
     
                 })
     
@@ -240,8 +280,7 @@ class Mapbox extends Component {
                 if (progress >= 1) {
     
                     timer.stop()
-                    // this.clear()
-                    
+
                     return resolve()
     
                 }
@@ -261,21 +300,37 @@ class Mapbox extends Component {
     
         points.forEach(point => {
             
-            const { isVisible, sourcePos, currentPos, color, rippleColor, radius, size } = point
-        
-            if (isVisible) {
+            const { 
+                isVisible, finalColor, isBackwards, 
+                sourcePos, currentPos, targetPos, 
+                color, rippleColor, radius, size
+            } = point
 
+            if (!isBackwards) {
+
+                if (isVisible) {
+                    
+                    ctx.fillStyle = color
+                    ctx.fillRect(currentPos.x, currentPos.y, size, size)
+    
+                }
+    
+                if (radius > 0) {
+                    
+                    ctx.beginPath()
+                    ctx.arc(sourcePos.x, sourcePos.y, radius, 0, Math.PI * 2)
+                    ctx.strokeStyle = rippleColor
+                    ctx.stroke()
+    
+                }
+                
+            } else {
+                
                 ctx.fillStyle = color
+                ctx.fillRect(targetPos.x, targetPos.y, size, size)
+
+                ctx.fillStyle = finalColor
                 ctx.fillRect(currentPos.x, currentPos.y, size, size)
-
-            }
-
-            if (radius > 0) {
-
-                ctx.beginPath()
-                ctx.arc(sourcePos.x, sourcePos.y, radius, 0, Math.PI * 2)
-                ctx.strokeStyle = rippleColor
-                ctx.stroke()
 
             }
 
