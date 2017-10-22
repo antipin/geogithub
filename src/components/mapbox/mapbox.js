@@ -15,6 +15,10 @@ const ANIMATION_RIPPLE_RADIUS = 20
 const ANIMATION_TRANSLATE_DURATION = 0.05 // Relative to whole timeline duration
 const ANIMATION_RIPPLE_DURATION = 0.025 // Relative to whole timeline duration
 const ANIMATION_FINAL_DURATION = 1000
+const TIMELINE_SIDE_OFFSET = 120
+const TIMELINE_BOTTOM_OFFSET = 20
+const PROGRESSBAR_COLOR = 'rgba(255,255,255,0.5)'
+const PROGRESSBAR_HEIGHT = 2
 const MAPBOX_STYLE = 'mapbox://styles/mapbox/dark-v9'
 const ACTIVE_MODES = [ 
     'fetching_repo_dataset_succeded',
@@ -149,7 +153,6 @@ class Mapbox extends Component {
 
             return {
                 isVisible: false,
-                isBackwards: false,
                 sourcePos: this.convertLatLngToCanvasCoords(item.coords),
                 currentPos: this.convertLatLngToCanvasCoords(item.coords),
                 targetPos: this.convertEventToTimelineCoords(item, days, maxPerDay, ANIMATION_POINT_SIZE),
@@ -178,15 +181,13 @@ class Mapbox extends Component {
 
     convertEventToTimelineCoords(item, days, maxPerDay, pointSize) {
 
-        const sideOffset = 120
-        const bottomOffset = 0
         const { width, height } = this.canvas.getBoundingClientRect()
-        const lengthOfTimeline = width - 2 * sideOffset
+        const lengthOfTimeline = width - 2 * TIMELINE_SIDE_OFFSET
         const pxPerDay = lengthOfTimeline / days
 
         return {
-            x: sideOffset + item.day * pxPerDay,
-            y: (height - bottomOffset) - (pointSize * item.order),
+            x: TIMELINE_SIDE_OFFSET + item.day * pxPerDay,
+            y: (height - TIMELINE_BOTTOM_OFFSET) - (pointSize * item.order),
         }
 
     }
@@ -235,7 +236,7 @@ class Mapbox extends Component {
 
                 })
     
-                this.draw(points)
+                this.draw(points, progress, false)
     
                 if (progress >= 1) {
     
@@ -265,13 +266,12 @@ class Mapbox extends Component {
                     const { sourcePos, targetPos, currentPos } = point
 
                     point.isVisible = true
-                    point.isBackwards = true
                     currentPos.x = targetPos.x * (1 - progress) + sourcePos.x * progress
                     currentPos.y = targetPos.y * (1 - progress) + sourcePos.y * progress
     
                 })
     
-                this.draw(points)
+                this.draw(points, progress, true)
     
                 if (progress >= 1) {
     
@@ -287,17 +287,28 @@ class Mapbox extends Component {
 
     }
 
-    draw(points) {
+    draw(points, progress, isBackwards = false) {
 
-        const { width, height } = this.canvas
+        const { width, height } = this.canvas.getBoundingClientRect()        
+        const barProgress = isBackwards ? 1 : progress
         const ctx = this.ctx
         
         ctx.clearRect(0, 0, width, height)
-    
+
+        // Draw progress
+        ctx.fillStyle = PROGRESSBAR_COLOR
+        ctx.fillRect(
+            TIMELINE_SIDE_OFFSET,
+            height - TIMELINE_BOTTOM_OFFSET + 1, // "+1" is an offset between timeline and progressbar
+            (width - 2 * TIMELINE_SIDE_OFFSET) * barProgress + 1,
+            PROGRESSBAR_HEIGHT
+        )
+
+        // Draw dots and ripples
         points.forEach(point => {
             
             const { 
-                isVisible, finalColor, isBackwards, 
+                isVisible, finalColor, 
                 sourcePos, currentPos, targetPos, 
                 color, rippleColor, radius, size
             } = point
