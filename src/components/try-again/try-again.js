@@ -16,15 +16,13 @@ class TryAgain extends Component {
     render() {
         
         return (
-            <div className={style.root}>
-                <div className={style.dialog}>
-                    <h2 className={style.dialogTitle}>
-                        Try again?
-                    </h2>
-                    <div className={style.dialogBody}>
-                        <div className={style.button} onClick={this.handleTryAgainClick}>
-                            ok
-                        </div>
+            <div className={style.dialog}>
+                <h2 className={style.dialogTitle}>
+                    Try again?
+                </h2>
+                <div className={style.dialogBody}>
+                    <div className={style.button} onClick={this.handleTryAgainClick}>
+                        ok
                     </div>
                 </div>
             </div>
