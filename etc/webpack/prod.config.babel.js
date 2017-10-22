@@ -15,6 +15,6 @@ const uglifyJS = new webpack.optimize.UglifyJsPlugin({
 export default Object.assign({}, base, {
     plugins: [
         ...base.plugins,
-        uglifyJS,
+        //uglifyJS, // fixit: js code fails after uglify
     ]
 })
