@@ -2,10 +2,10 @@ import eachLimit from 'async/eachLimit'
 import pick from 'lodash/pick'
 import EventEmitter from 'eventemitter3'
 import Fetch from '../fetch'
-import datasetHistory from './dataset-history.json'
-import datasetReat from './dataset-react.json'
-import datasetNode from './dataset-node.json'
-import datasetBootstrap from './dataset-bootstrap.json'
+// import datasetHistory from './dataset-history.json'
+// import datasetReat from './dataset-react.json'
+// import datasetNode from './dataset-node.json'
+// import datasetBootstrap from './dataset-bootstrap.json'
 
 const PARALLEL_REQUESTS_LIMIT = 25
 const MAPBOX_BASE_URL = 'https://api.mapbox.com'
@@ -46,23 +46,23 @@ export default class GeoGithubDataprovider extends EventEmitter {
 
     fetch() {
         
-        const mapRepoPathToDataset = {
-            'ReactTraining/history': datasetHistory,
-            'facebook/react': datasetReat,
-            'nodejs/node': datasetNode,
-            'twbs/bootstrap' :datasetBootstrap,
-        }
-        const preloadedDataset = mapRepoPathToDataset[this.repoPath]
+        // const mapRepoPathToDataset = {
+        //     'ReactTraining/history': datasetHistory,
+        //     'facebook/react': datasetReat,
+        //     'nodejs/node': datasetNode,
+        //     'twbs/bootstrap' :datasetBootstrap,
+        // }
+        // const preloadedDataset = mapRepoPathToDataset[this.repoPath]
 
-        if (preloadedDataset) {
+        // if (preloadedDataset) {
 
-            return new Promise(resolve => {
+        //     return new Promise(resolve => {
     
-                setTimeout(() => resolve(preloadedDataset), 100)
+        //         setTimeout(() => resolve(preloadedDataset), 100)
     
-            })
+        //     })
 
-        }
+        // }
 
         return this.fetchRepo()
             .then(this.fetchContributors.bind(this))
