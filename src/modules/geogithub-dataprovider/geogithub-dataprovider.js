@@ -226,7 +226,8 @@ export default class GeoGithubDataprovider extends EventEmitter {
                     
                     if (!cotributorLocation) return next()
                     
-                    const safeLocation = encodeURIComponent(cotributorLocation)
+                    // Replace ; to , becouse of api.mapbox.com can't handle encoded semicolons for some reason
+                    const safeLocation = encodeURIComponent(cotributorLocation.replace(/;/g, ','))
                     const geocodeUrl = `${MAPBOX_BASE_URL}/geocoding/v5/mapbox.places/${safeLocation}.json`
                     this.mapbox.get(geocodeUrl, { limit: 1 })
                         .then(geocodeData => {
