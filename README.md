@@ -16,19 +16,24 @@ so things like data fetching logic and animations are implemented primarily by m
 Design
 ------
 Application roughly consists of following parts:
- * **React**. Responsible for UI components
- * **Redux**. Responsible for handling events and providing state store for components
- * **Fetch class**. Does all the low-level job for talking with APIs, keep track of rate-limits and other HTTP issues
- * **GithubDataprovider**. Uses Fetch for retrieving data from GitHub and Mapbox and builds an initial dataset
+ * **React**. Responsible for UI components.
+ * **Redux**. Responsible for handling events and providing state store for components.
+ * **Fetch class**. Does all the low-level job for talking with APIs, keep track of rate-limits and other HTTP issues.
+ * **GithubDataprovider**. Uses Fetch instances for retrieving data from GitHub and Mapbox and builds an initial dataset.
  * **GeoEventsTimeline**. Converts initial dataset into the array, where each element has all necessary data to be plotted on the map and the timeline.
  * **Mapbox react component**. Takes an instance of GeoEventsTimeline with commits data, builds a model for canvas and animates it. Here I've used 3 helper libs from the d3 world:
     * *d3-timer* – a convenient abstraction above ``requestAnimationFrame``
     * *d3-ease* – set of ease functions to make animation more natural
     * *d3-scale* – simple way to map numbers into beautiful colour range
 
+This app uses two external APIs:
+ * GitHub provides all data about commits and committers
+ * Mapbox is used for geocoding (converts location names into geo coordinates)
+   Mapbox is used for its awesome looking maps and rate-limits for geocoding. It's much more generous compared to GoogleMaps API.
+
 Installation and running
 ------------------------
-Firs of all,
+First of all,
 ```
 npm install
 ```
@@ -47,7 +52,7 @@ GITHUB_TOKEN=<github_access_token> MAPBOX_TOKEN=<mapbox_access_token> npm run st
 
 Now you cat open application on [localhost:8000](http://localhost:8000)
 
-If you want just build project, run:
+If you want just to build a project, run:
 ```
 GITHUB_TOKEN=<github_access_token> MAPBOX_TOKEN=<mapbox_access_token> npm run build:dev
 ```
@@ -82,4 +87,5 @@ Disclaimer and known issues
 
 Recommendations
 --------------
-Look at ``kubernetes/kubernetes`` and ``moby/moby`` repos – they are nice.
+Look at ``kubernetes/kubernetes``, ``moby/moby`` and ``golang/go`` repos – they are nice.
+Interesting fact: ``ruby/ruby`` created mostly by Japan.
