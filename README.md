@@ -88,6 +88,7 @@ Disclaimer and known issues
  * This app tested only on MacOS, mainly in Chrome 61 and Firefox 56.
  * It has a critical issue with data fetching in Safari.
  * Don't resize viewport after the app is launched.
+ * Sometimes GitHub responds with abuse protection 403 errors. The application can handle it, but it slows down fetch process. Be patient!
 
 Recommendations
 --------------
