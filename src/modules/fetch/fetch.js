@@ -238,7 +238,7 @@ export default class Fetch extends EventEmitter {
 
                 if (typeof isRateLimitExceeded === 'function' && isRateLimitExceeded(status, body)) {
 
-                    return reject(new Error(`${body.message} Recharge in ${timeRemained} minutes`))
+                    return reject(new Error(`${body.message} Recharge in ~${timeRemained} minutes`))
 
                 }
 
