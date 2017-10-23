@@ -1,7 +1,9 @@
 import parsePaginationLinks from 'parse-link-header'
-import each from 'async/each'
+import eachLimit from 'async/eachLimit'
 import range from 'lodash/range'
 import EventEmitter from 'eventemitter3'
+
+const PARALLEL_REQUESTS_LIMIT = 25
 
 export default class Fetch extends EventEmitter {
 
@@ -78,8 +80,9 @@ export default class Fetch extends EventEmitter {
         // Emit for first page
         this.emit('progress', { progress, current: 1, total })
         
-        return new Promise((resolve, reject) => each(
+        return new Promise((resolve, reject) => eachLimit(
             range(current, total + 1),
+            PARALLEL_REQUESTS_LIMIT,
             (currentPage, next) => {
             
                 const optionsWithPage = Object.assign({ page: currentPage }, query)
@@ -117,14 +120,82 @@ export default class Fetch extends EventEmitter {
      */
     async doFetch(endpoint, query = {}) {
         
-        const fetchOptions = Object.assign({ method: 'get' }, this.fetchOptions)
-        const extendedQuery = Object.assign({}, this.defaultQuery, query)
-        const url = new URL(endpoint)
-        url.search = (new URLSearchParams(extendedQuery)).toString()
+        const url = this.mergeUrl(endpoint, query)
+        const fetchOptions = Object.assign({ method: 'get' }, this.fetchOptions)    
         
-        return await fetch(url.toString(), fetchOptions)
+        return await fetch(url, fetchOptions)
+            .then(this.controlAbuse.bind(this))
             .then(this.emitRateLimits.bind(this))
-            .then(Fetch.checkStatus)
+            .then(this.enhanceRateLimitError.bind(this))
+            .then(this.checkStatus.bind(this))
+
+    }
+
+    mergeUrl(endpoint, query = {}) {
+
+        const url = new URL(endpoint)
+        
+        // Add defaultQuery to URL's searchParams
+        Object.keys(this.defaultQuery).forEach(key =>
+            url.searchParams.set(key, this.defaultQuery[key])
+        )
+
+        // Add query values from args to URL's searchParams
+        Object.keys(query).forEach(key =>
+            url.searchParams.set(key, query[key])
+        )
+
+        return url.toString()
+            
+    }
+
+    controlAbuse(response) {
+
+        return new Promise((resolve, reject) => {
+
+            const { status } = response
+            const { isAbused } = this.options
+            /**
+             * We can not access 'Retry-After' as it's not in Access-Control-Expose-Headers,
+             * so hardcode it here
+             */
+            const RETRY_AFTER = 60  
+
+            response.clone().json().then(body => {
+
+                if (typeof isAbused === 'function' && isAbused(status, body)) {
+
+                    console.log('controlAbuse triggered for', response.url)
+
+                    let remainedTime = RETRY_AFTER
+                    const timer = setInterval(
+                        () => this.emit('await-abuse', --remainedTime),
+                        1000
+                    )
+                    
+                    setTimeout(
+                        () => {
+
+                            clearInterval(timer)
+
+                            const url = this.mergeUrl(response.url)
+                            console.log('waitIfAbused - next try', url)
+
+                            return fetch(url, this.fetchOptions).then(resolve)
+
+                        },
+                        RETRY_AFTER * 1000
+                    )
+
+                } else {
+
+                    return resolve(response)
+
+                }
+
+            }).catch(error => reject(error))
+        
+        }) 
 
     }
 
@@ -134,24 +205,49 @@ export default class Fetch extends EventEmitter {
         const { 
             rateLimitHeaderNameLimit,
             rateLimitHeaderNameRemaining, 
-            rateLimitHeaderNameReset 
+            rateLimitHeaderNameReset,
         } = this.options
+        const limit = headers.get(rateLimitHeaderNameLimit)
+        const remaining = headers.get(rateLimitHeaderNameRemaining)
+        const reset = headers.get(rateLimitHeaderNameReset)
 
-        if (rateLimitHeaderNameLimit && rateLimitHeaderNameRemaining && rateLimitHeaderNameReset) {
+        this.emit('rate-limits', {
+            progress: (limit !== 0) ? (remaining / limit) : 1,
+            remaining,
+            limit,
+            reset,
+        })
 
-            const limit = headers.get(rateLimitHeaderNameLimit)
-            const remaining = headers.get(rateLimitHeaderNameRemaining)
-                
-            this.emit('rate-limits', {
-                progress: remaining / limit,
-                remaining,
-                limit,
-            })
-
-        }
-        
         return Promise.resolve(response)
 
+    }
+
+    enhanceRateLimitError(response) {
+
+        return new Promise((resolve, reject) => {
+
+            const { status, headers } = response
+            const { 
+                isRateLimitExceeded, 
+                rateLimitHeaderNameReset,
+            } = this.options
+            const reset = headers.get(rateLimitHeaderNameReset)
+            const timeRemained = Math.round((reset - Date.now() / 1000) / 60)
+
+            response.clone().json().then(body => {
+
+                if (typeof isRateLimitExceeded === 'function' && isRateLimitExceeded(status, body)) {
+
+                    return reject(new Error(`${body.message} Recharge in ${timeRemained} minutes`))
+
+                }
+
+                return resolve(response)
+
+            }).catch(error => reject(error))
+        
+        }) 
+            
     }
     
     /**
@@ -159,9 +255,8 @@ export default class Fetch extends EventEmitter {
      * @param {Response} response
      * @returns {Response|Error}
      * @private
-     * @static
      */
-    static async checkStatus(response) {
+    async checkStatus(response) {
 
         if (response.status >= 200 && response.status < 300) {
 
