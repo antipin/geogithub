@@ -2,9 +2,9 @@
     position: absolute;
     height: 50vh;
     width: 60vw;
-    top: 50%;
+    top: 15%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, 0);
     color: #FFF;
     font-weight: 100;
 }
@@ -16,7 +16,6 @@
 
 .dialog-body {
     padding-top: 10px;
-    text-align: center;
 }
 
 .dialog-footer {
@@ -28,6 +27,11 @@
     width: 80%;
     margin: 0 auto;
 }
+
+.field-title {
+    padding: 20px 0 10px;
+}
+
 .field-input {
     display: block;
     text-align: center

@@ -42,10 +42,13 @@ class RepoPicker extends Component {
         return (            
             <div className={style.root}>
                 <h2 className={style.dialogTitle}>
-                    Type in github repo name for visualisation
+                    How do commits to open source projects on GitHub distribute in time and geography?
                 </h2>
                 <div className={style.dialogBody}>
                     <div className={style.field}>
+                        <div className={style.fieldTitle}>
+                            Type in github repository name for visualisation
+                        </div>
                         <div className={style.fieldInput}>
                             <input
                                 type="text" 
