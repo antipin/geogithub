@@ -8,8 +8,8 @@ const KEY_RETURN = 13
 const EXAMPLES = [
     'facebook/react', 'nodejs/node', 'twbs/bootstrap', 'angular/angular.js',
     'facebook/react-native', 'jquery/jquery', 'atom/atom', 'meteor/meteor', 'moby/moby', 'golang/go',
-    'kubernetes/kubernetes', 'rust-lang/rust', 'laravel/laravel', 'symfony/symfony', 'rails/rails',
-    'nvbn/thefuck', 'pallets/flask', 'django/django',
+    'rust-lang/rust', 'laravel/laravel', 'symfony/symfony', 'ruby/ruby', 'rails/rails',
+    'nvbn/thefuck', 'pallets/flask', 'django/django', 'mongodb/mongo', 'kubernetes/kubernetes',
 ]
 
 class RepoPicker extends Component {
@@ -88,6 +88,8 @@ class RepoPicker extends Component {
             ...this.state,
             repoPath: example,
         })
+        
+        this.input.focus()        
 
     }
 
