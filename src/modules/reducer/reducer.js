@@ -22,6 +22,7 @@ function makeReducer({ initialState, modes }) {
             rateLimitsProgress: action.payload.progress,
             rateLimitsRemaining: action.payload.remaining,
             rateLimitsLimit: action.payload.limit,
+            rateLimitsReset: action.payload.reset,
         }),
         FETCH_REPO_DATASET_FAILED: (state, action) => ({
             ...state,

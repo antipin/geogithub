@@ -39,8 +39,10 @@ export default class GeoGithubDataprovider extends EventEmitter {
         this.onContributorsProgress = this.onContributorsProgress.bind(this)
         this.onCommitsProgress = this.onCommitsProgress.bind(this)
         this.onGithubRateLimits = this.onGithubRateLimits.bind(this)
+        this.onAwaitAbuse = this.onAwaitAbuse.bind(this)
 
         this.github.on('rate-limits', this.onGithubRateLimits)
+        this.github.on('await-abuse', this.onAwaitAbuse)
         
     }
 
@@ -312,12 +314,22 @@ export default class GeoGithubDataprovider extends EventEmitter {
 
     }
 
-    onGithubRateLimits({ progress, remaining, limit }) {
+    onGithubRateLimits({ progress, remaining, limit, reset }) {
 
         this.emit('github-rate-limits', {
             progress,
             remaining,
             limit,
+            reset,
+        })
+
+    }
+
+    onAwaitAbuse(timeRemained) {
+
+        this.emit('progress', { 
+            progress: this.progress,
+            task: `Waitinig for abuse to be over. ${timeRemained} seconds left`
         })
 
     }
@@ -406,6 +418,16 @@ export default class GeoGithubDataprovider extends EventEmitter {
             rateLimitHeaderNameLimit: 'X-RateLimit-Limit',
             rateLimitHeaderNameRemaining: 'X-RateLimit-Remaining',
             rateLimitHeaderNameReset: 'X-RateLimit-Reset',
+            isAbused: (status, body) => (
+                status === 403 && 
+                body.message && 
+                body.message.startsWith('You have triggered an abuse')
+            ),
+            isRateLimitExceeded: (status, body) => (
+                status === 403 && 
+                body.message && 
+                body.message.startsWith('API rate limit exceeded')
+            ),
         }
 
         return new Fetch({ fetchOptions, options }) 
@@ -428,6 +450,12 @@ export default class GeoGithubDataprovider extends EventEmitter {
             rateLimitHeaderNameLimit: 'X-Rate-Limit-Limit',
             rateLimitHeaderNameRemaining: null,
             rateLimitHeaderNameReset: 'X-Rate-Limit-Reset',
+            isAbused: (status) => (
+                status === 403
+            ),
+            isRateLimitExceeded: (status) => (
+                status === 429
+            ),
         }
         
         return new Fetch({ fetchOptions, defaultQuery, options }) 

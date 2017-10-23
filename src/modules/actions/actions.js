@@ -15,8 +15,8 @@ const fetchRepoDataset = createAction('FETCH_REPO_DATASET', ({ repoPath, githubT
             dispatch(fetchRepoDatasetProgress({ progress, task }))
         )
 
-        geoGithubDataprovider.on('github-rate-limits', ({ progress, remaining, limit }) => 
-            dispatch(fetchRepoDatasetRateLimits({ progress, remaining, limit }))
+        geoGithubDataprovider.on('github-rate-limits', ({ progress, remaining, limit, reset }) => 
+            dispatch(fetchRepoDatasetRateLimits({ progress, remaining, limit, reset }))
         )
 
         geoGithubDataprovider.fetch()
