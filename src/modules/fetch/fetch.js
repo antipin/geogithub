@@ -179,9 +179,9 @@ export default class Fetch extends EventEmitter {
                             clearInterval(timer)
 
                             const url = this.mergeUrl(response.url)
-                            console.log('waitIfAbused - next try', url)
 
-                            return fetch(url, this.fetchOptions).then(resolve)
+                            return fetch(url, this.fetchOptions)
+                                .then(this.controlAbuse.bind(this))
 
                         },
                         RETRY_AFTER * 1000
