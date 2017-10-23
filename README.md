@@ -1,6 +1,10 @@
 GeoGitHub
 =========
 
+The question
+------------
+How do commits to open source projects on GitHub distribute in time and geography?
+
 About
 -----
 GeoGitHub application visualizes the geographical commits distribution of a chosen repository.
