@@ -159,13 +159,11 @@ export default class Fetch extends EventEmitter {
              * We can not access 'Retry-After' as it's not in Access-Control-Expose-Headers,
              * so hardcode it here
              */
-            const RETRY_AFTER = 60  
+            const RETRY_AFTER = 60 
 
             response.clone().json().then(body => {
 
                 if (typeof isAbused === 'function' && isAbused(status, body)) {
-
-                    console.log('controlAbuse triggered for', response.url)
 
                     let remainedTime = RETRY_AFTER
                     const timer = setInterval(
@@ -182,6 +180,7 @@ export default class Fetch extends EventEmitter {
 
                             return fetch(url, this.fetchOptions)
                                 .then(this.controlAbuse.bind(this))
+                                .then(resolve)
 
                         },
                         RETRY_AFTER * 1000
