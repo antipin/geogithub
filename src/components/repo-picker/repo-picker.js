@@ -9,7 +9,7 @@ const EXAMPLES = [
     'facebook/react', 'nodejs/node', 'twbs/bootstrap', 'angular/angular.js',
     'facebook/react-native', 'jquery/jquery', 'atom/atom', 'meteor/meteor', 'moby/moby', 'golang/go',
     'rust-lang/rust', 'laravel/laravel', 'symfony/symfony', 'ruby/ruby', 'rails/rails',
-    'nvbn/thefuck', 'pallets/flask', 'django/django', 'mongodb/mongo', 'kubernetes/kubernetes',
+    'pallets/flask', 'django/django', 'mongodb/mongo', 'kubernetes/kubernetes',
 ]
 
 class RepoPicker extends Component {
