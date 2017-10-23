@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { BaseLayout, ErrorBox, Mapbox, RepoPicker, RepoFetcher, TryAgain } from '../'
+import { BaseLayout, ErrorBoundary, ErrorBox, Mapbox, RepoPicker, RepoFetcher, TryAgain } from '../'
 
 class Root extends Component {
 
@@ -10,8 +10,10 @@ class Root extends Component {
 
         return (
             <BaseLayout>
-                <Mapbox/>
-                { this.modeToComponent(mode) }
+                <ErrorBoundary>
+                    <Mapbox/>
+                    { this.modeToComponent(mode) }
+                </ErrorBoundary>
             </BaseLayout>
         )
 

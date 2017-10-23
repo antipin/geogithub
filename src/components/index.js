@@ -1,3 +1,4 @@
+export { default as ErrorBoundary } from './error-boundary'
 export { default as Root } from './root'
 export { default as BaseLayout } from './base-layout'
 export { default as ErrorBox } from './error-box'
