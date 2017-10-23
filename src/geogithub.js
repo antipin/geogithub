@@ -3,16 +3,10 @@ import { makeReducer, makeStore, makeRenderer } from './modules'
 
 try {
 
-    const env = process.env
-    
-    /**
-     * Access tokens for external APIs
-     */
-    const { NODE_ENV, GITHUB_TOKEN, MAPBOX_TOKEN } = env
+    //Access tokens for external APIs
+    const { NODE_ENV, GITHUB_TOKEN, MAPBOX_TOKEN } = process.env
 
-    /**
-     * Application can be in the following states
-     */
+    //Application can be in the following states
     const modes = keymirror({
         waiting_for_repo_selection: '',
         repo_is_selected: '',
@@ -23,24 +17,18 @@ try {
         visualisation_completed: '',
     })
 
-    /**
-     * Initial application state
-     */
+    // Initial application state
     const initialState = {
         mode: modes.waiting_for_repo_selection,
         env: { GITHUB_TOKEN, MAPBOX_TOKEN }
     }
 
-    /**
-     * Tie up together main app modules
-     */
+    // Tie up together main app modules
     const reducer = makeReducer({ initialState, modes })
     const store = makeStore({ reducer, initialState, isDevelopment: (NODE_ENV === 'development') })
     const render = makeRenderer({ store })
 
-    /**
-     * render app
-     */
+    // Render the app
     render()
 
 } catch (error) {
