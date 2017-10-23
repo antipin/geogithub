@@ -31,13 +31,16 @@ class RepoFetcher extends Component {
     render() {
         
         const { 
-            progress, progressTask, repoPath,
-            rateLimitsProgress, rateLimitsRemaining, rateLimitsLimit 
+            progress, progressTask, repoPath, rateLimitsProgress,
+            rateLimitsRemaining, rateLimitsLimit, rateLimitsReset,
         } = this.props
         const width = `${Math.round(progress * 100)}%`
         const rateLimitColor = rateLimitsProgress > 0.5 ? COLOR_OK : 
             (rateLimitsProgress > 0.2) ? COLOR_WARNING : COLOR_DANGER
-        
+        const nextRecharge = Math.round(rateLimitsReset - (Date.now() / 1000))
+        const nextRechargeMin = `0${Math.floor(nextRecharge / 60)}`.slice(-2)
+        const nextRechargeSec = `0${nextRecharge - (nextRechargeMin * 60)}`.slice(-2)
+
         return (
             <div className={style.root}>
                 <h2 className={style.dialogTitle}>
@@ -60,6 +63,9 @@ class RepoFetcher extends Component {
                                     <span style={{ color: rateLimitColor }}>{rateLimitsRemaining}</span>
                                     { ` / ${rateLimitsLimit} ` }
                                 </span>
+                                <span className={style.rateLimitsLabel}>
+                                    { `Recharge in ${nextRechargeMin}:${nextRechargeSec}` }
+                                </span>
                             </div>
                         ) : null
                     }
@@ -80,6 +86,7 @@ const mapStateToProps = (state) => ({
     rateLimitsProgress: state.rateLimitsProgress || 1,
     rateLimitsRemaining: state.rateLimitsRemaining || 0,
     rateLimitsLimit: state.rateLimitsLimit || 0,
+    rateLimitsReset: state.rateLimitsReset || 0,
 })
 
 export default connect(mapStateToProps)(RepoFetcher)
