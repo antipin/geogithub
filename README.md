@@ -1,17 +1,41 @@
-Geo GitHub
-==========
+GeoGitHub
+=========
 
-Installation
-------------
+About
+-----
+GeoGitHub application visualizes the geographical commits distribution of a chosen repository.
 
+This is a rather simple app, however, I've built it on top of the react+redux stack for the following reasons:
+ * It allows to build things relatively fast
+ * It adds a convenient structure to the application
+ * Redux allows you to reason about data flow in a clear way
+
+Nevertheless, I've challenged myself not to use third party libraries a lot,
+so things like data fetching logic and animations are implemented primarily by myself on pure js and native browser APIs.
+
+Design
+------
+Application roughly consists of following parts:
+ * **React**. Responsible for UI components
+ * **Redux**. Responsible for handling events and providing state store for components
+ * **Fetch class**. Does all the low-level job for talking with APIs, keep track of rate-limits and other HTTP issues
+ * **GithubDataprovider**. Uses Fetch for retrieving data from GitHub and Mapbox and builds an initial dataset
+ * **GeoEventsTimeline**. Converts initial dataset into the array, where each element has all necessary data to be plotted on the map and the timeline.
+ * **Mapbox react component**. Takes an instance of GeoEventsTimeline with commits data, builds a model for canvas and animates it. Here I've used 3 helper libs from the d3 world:
+    * *d3-timer* – a convenient abstraction above ``requestAnimationFrame``
+    * *d3-ease* – set of ease functions to make animation more natural
+    * *d3-scale* – simple way to map numbers into beautiful colour range
+
+Installation and running
+------------------------
+Firs of all,
 ```
 npm install
 ```
 
-Development
------------
-
-As far as this application talks with github and mapbox APIs, first you need to generate access tokens for this services.
+Development env
+---------------
+This application talks with GitHub and Mapbox APIs so you need to generate access tokens for this services.
 
 See **How to get access tokens** section below.
 
@@ -28,19 +52,34 @@ If you want just build project, run:
 GITHUB_TOKEN=<github_access_token> MAPBOX_TOKEN=<mapbox_access_token> npm run build:dev
 ```
 
-Production
-----------
-
+Production env
+--------------
 To build production version of Geo GitHub application just run
 ```
 GITHUB_TOKEN=<github_access_token> MAPBOX_TOKEN=<mapbox_access_token> npm run build
 ```
 
+A simple way to serve content of the ``./dist`` directory over HTTP on a local machine is: 
+```
+cd ./dist
+python -m SimpleHTTPServer
+```
+
 How to get access tokens
 ------------------------
+As far as this application talks with GitHub and Mapbox APIs, first you need to generate access tokens for this services.
 
-As far as this application talks with github and mapbox APIs, first you need to generate access tokens for this services.
-
-To generate *github* access token make sure you signed into github account and go to [/settings/tokens](https://github.com/settings/tokens)
+To generate *GitHub* access token make sure you signed into GitHub account and go to [/settings/tokens](https://github.com/settings/tokens). Click "Generate new token". There is no need to check any permission checkboxes.
 
 To get *mapbox* access token, [sign up](https://www.mapbox.com/signup/) for this service and create net token here: [/studio/account/tokens/](https://www.mapbox.com/studio/account/tokens/)
+
+Disclaimer and known issues
+---------------------------
+
+ * This app tested only on MacOS, mainly in Chrome 61 and Firefox 56.
+ * It has a critical issue with data fetching in Safari.
+ * Don't resize viewport after the app is launched.
+
+Recommendations
+--------------
+Look at ``kubernetes/kubernetes`` and ``moby/moby`` repos – they are nice.
