@@ -3,7 +3,7 @@ import eachLimit from 'async/eachLimit'
 import range from 'lodash/range'
 import EventEmitter from 'eventemitter3'
 
-const PARALLEL_REQUESTS_LIMIT = 25
+const PARALLEL_REQUESTS_LIMIT = 5
 
 export default class Fetch extends EventEmitter {
 
