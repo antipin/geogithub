@@ -295,12 +295,12 @@ export default class GeoGithubDataprovider extends EventEmitter {
 
     }
 
-    onContributorsProgress({ total }) {
+    onContributorsProgress({ current, total }) {
 
         this.progress += (1 / total) * PROGRESS_QUOTES.contributors
         this.emit('progress', { 
             progress: this.progress,
-            task: 'Fetching contributors'
+            task: `Fetching contributor page #${current} of ${total}`
         })
 
     }
@@ -310,7 +310,7 @@ export default class GeoGithubDataprovider extends EventEmitter {
         this.progress += (1 / total) * PROGRESS_QUOTES.commits
         this.emit('progress', {
             progress: this.progress,
-            task: `Fetching commit pages ${current} of ${total}`
+            task: `Fetching commit page #${current} of ${total}`
         })
 
     }
