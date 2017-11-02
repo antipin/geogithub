@@ -15,7 +15,6 @@
     "url": "git+https://github.com/antipin/geogithub.git"
   },
   "author": "Alexander I. Antipin <alex@antipin.com>",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/antipin/geogithub/issues"
   },
