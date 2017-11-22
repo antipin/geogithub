@@ -17,6 +17,12 @@ This is a rather simple app, however, I've built it on top of the react+redux st
 Nevertheless, I've challenged myself not to use third party libraries a lot,
 so things like data fetching logic and animations are implemented primarily by myself on pure js and native browser APIs.
 
+Demo
+----
+[https://youtu.be/JjChZNphtmU](https://www.youtube.com/watch?v=JjChZNphtmU&t=75)
+
+![Demo](/docs/demo.png?raw=true)
+
 Design
 ------
 Application roughly consists of following parts:
